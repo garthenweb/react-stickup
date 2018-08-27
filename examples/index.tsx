@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { render } from 'react-dom';
 
-import { ViewportProvider } from 'react-viewport-utils';
-import StickyScrollUp from '../lib/StickyScrollUp';
-import Sticky from '../lib/Sticky';
-import StickyGroupProvider from '../lib/StickyScrollUpProvider';
+import { Sticky, StickyScrollUp, StickyScrollUpProvider } from '../lib/index';
 
 import './styles.css';
 
@@ -22,7 +19,7 @@ class Example extends React.PureComponent {
 
   render() {
     return (
-      <StickyGroupProvider>
+      <>
         <StickyScrollUp>
           <div className="header">Header</div>
         </StickyScrollUp>
@@ -58,19 +55,19 @@ class Example extends React.PureComponent {
         <Placeholder />
         <Placeholder />
         <Placeholder />
-      </StickyGroupProvider>
+      </>
     );
   }
 }
 
 render(
-  <ViewportProvider>
+  <StickyScrollUpProvider>
     <main role="main">
       <Example />
       <Placeholder />
       <Placeholder />
       <Placeholder />
     </main>
-  </ViewportProvider>,
+  </StickyScrollUpProvider>,
   document.getElementById('root'),
 );
