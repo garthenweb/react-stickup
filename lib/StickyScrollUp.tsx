@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { ObserveBoundingClientRect, connectViewportScroll } from 'react-viewport-utils';
+import {
+  ObserveBoundingClientRect,
+  connectViewportScroll,
+} from 'react-viewport-utils';
 import { connect as connectStickyGroup } from './StickyScrollUpProvider';
 
 interface IRect {
@@ -24,7 +27,10 @@ interface IProps {
   updateStickyOffset?: (offset: number) => void;
 }
 
-const calcPositionStyles = (rect: IRect, scroll: IScroll): React.CSSProperties => {
+const calcPositionStyles = (
+  rect: IRect,
+  scroll: IScroll,
+): React.CSSProperties => {
   if (scroll.isScrollingDown) {
     return {
       position: 'absolute',

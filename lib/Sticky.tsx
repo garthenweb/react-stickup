@@ -2,8 +2,13 @@ import * as React from 'react';
 import { ObserveBoundingClientRect } from 'react-viewport-utils';
 import { connect as connectStickyGroup } from './StickyScrollUpProvider';
 
+interface IChildrenOptions {
+  isSticky: boolean;
+  isDockedToBottom: boolean;
+}
+
 interface IProps {
-  children?: React.ReactNode;
+  children?: React.ReactNode | ((options: IChildrenOptions) => React.ReactNode);
   container?: React.RefObject<any>;
   stickyOffset: number;
 }
@@ -59,7 +64,11 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return Boolean(this.props.container);
   };
 
-  isSticky = (rect: IRect, containerRect: IRect) => {
+  isSticky = (rect: IRect | null, containerRect: IRect | null) => {
+    if (!rect || !containerRect) {
+      return false;
+    }
+
     if (!this.hasContainer()) {
       return containerRect.top <= this.props.stickyOffset;
     }
@@ -75,7 +84,26 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return true;
   };
 
-  calcPositionStyles = (rect: IRect, containerRect: IRect): React.CSSProperties => {
+  isDockedToBottom = (rect: IRect | null, containerRect: IRect | null) => {
+    if (!rect || !containerRect) {
+      return false;
+    }
+
+    if (!this.hasContainer()) {
+      return false;
+    }
+
+    if (containerRect.bottom - this.props.stickyOffset >= rect.height) {
+      return false;
+    }
+
+    return true;
+  };
+
+  calcPositionStyles = (
+    rect: IRect,
+    containerRect: IRect,
+  ): React.CSSProperties => {
     if (this.isSticky(rect, containerRect)) {
       return {
         position: 'fixed',
@@ -83,10 +111,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       };
     }
 
-    if (
-      this.hasContainer() &&
-      containerRect.bottom - this.props.stickyOffset < rect.height
-    ) {
+    if (this.isDockedToBottom(rect, containerRect)) {
       return {
         position: 'absolute',
         top: containerRect.height - rect.height,
@@ -99,7 +124,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
     };
   };
 
-  getStickyStyles(rect: IRect | null, containerRect: IRect | null): React.CSSProperties | null {
+  getStickyStyles(
+    rect: IRect | null,
+    containerRect: IRect | null,
+  ): React.CSSProperties | null {
     if (!rect || !containerRect) {
       return null;
     }
@@ -133,12 +161,18 @@ class Sticky extends React.PureComponent<IProps, IState> {
   };
 
   renderSticky(rect: IRect | null, containerRect: IRect | null) {
+    const { children } = this.props;
     return (
       <div
         ref={this.stickyRef}
         style={this.getStickyStyles(rect, containerRect) || {}}
       >
-        {this.props.children}
+        {typeof children === 'function'
+          ? children({
+              isSticky: this.isSticky(rect, containerRect),
+              isDockedToBottom: this.isDockedToBottom(rect, containerRect),
+            })
+          : children}
       </div>
     );
   }

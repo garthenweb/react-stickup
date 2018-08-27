@@ -6,7 +6,9 @@ const StickyGroupContext = React.createContext({
   updateStickyOffset: (offset: number) => {},
 });
 
-export const connect = () => (WrappedComponent: React.ComponentType<any>) => (props: any) => {
+export const connect = () => (WrappedComponent: React.ComponentType<any>) => (
+  props: any,
+) => {
   return (
     <StickyGroupContext.Consumer>
       {context => (

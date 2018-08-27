@@ -12,10 +12,12 @@ const Placeholder = () => <div className="placeholder" />;
 
 class Example extends React.PureComponent {
   private container1: React.RefObject<any>;
+  private container2: React.RefObject<any>;
 
   constructor(props) {
     super(props);
     this.container1 = React.createRef();
+    this.container2 = React.createRef();
   }
 
   render() {
@@ -33,8 +35,24 @@ class Example extends React.PureComponent {
           <Placeholder />
         </div>
 
+        <div ref={this.container2}>
+          <Sticky container={this.container2}>
+            {({ isSticky, isDockedToBottom }) => (
+              <div className="sticky-inline">
+                Sticky inline2
+                <br />
+                isSticky: {isSticky ? 'true' : 'false'}
+                <br />
+                isDockedToBottom: {isDockedToBottom ? 'true' : 'false'}
+                <br />
+              </div>
+            )}
+          </Sticky>
+          <Placeholder />
+        </div>
+
         <Sticky>
-          <div className="sticky-inline">Sticky inline2</div>
+          <div className="sticky-inline">Sticky inline3</div>
         </Sticky>
 
         <Placeholder />
