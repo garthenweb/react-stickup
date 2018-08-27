@@ -1,0 +1,11 @@
+lib/
+examples/
+node_modules/
+examples-dist/
+.cache/
+.rpt2_cache/
+.editorconfig
+.prettierrc
+rollup.config.js
+tsconfig.json
+tslint.json

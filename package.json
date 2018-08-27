@@ -1,0 +1,47 @@
+{
+  "name": "react-stickup",
+  "version": "0.1.0",
+  "description": "React components for sophisticated sticky behavior",
+  "main": "dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "start": "rm -rf ./.cache && parcel ./examples/index.html --out-dir='examples-dist'",
+    "compile": "tsc --project ./tsconfig.json",
+    "test": "jest lib",
+    "fmt": "prettier --write \"lib/*.{ts,tsx}\"  \"examples/*.{ts,tsx}\"",
+    "publish": "npm run compile",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/garthenweb/react-stickup"
+  },
+  "bugs": {
+    "url": "https://github.com/garthenweb/react-stickup/issues"
+  },
+  "author": "Jannick Garthen <jannick.garthen@gmail.com>",
+  "keywords": [
+    "react",
+    "viewport"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^10.9.2",
+    "@types/react": "^16.4.11",
+    "@types/react-dom": "^16.0.7",
+    "concurrently": "^4.0.0",
+    "jest": "^23.5.0",
+    "parcel-bundler": "1.9.4",
+    "prettier": "^1.14.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "ts-jest": "^23.1.4",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "react-viewport-utils": "^0.1.0"
+  },
+  "peerDependencies": {
+    "react": "^16.3.0"
+  }
+}
