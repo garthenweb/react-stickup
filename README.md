@@ -33,7 +33,7 @@ render(
       <Sticky container={container}>
         <Header>My Header</Header>
       </Sticky>
-      <div style={{ height: 5000px}}>
+      <div style={{ height: '5000px' }}>
         Lots of content
       </div>
     </div>
@@ -47,9 +47,9 @@ render(
 
 ### StickyScrollUp
 
-Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. ´Sticky´ next to the `StickyScrollUp` will stick to the bottom of it.
+Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. `Sticky` next to the `StickyScrollUp` will stick to the bottom of it.
 
-*Important*: To work the `StickyScrollUp` component requires to have ´StickyScrollUpProvider´ somewhere as a parent. Also the `Sticky` component must have the `StickyScrollUpProvider` as parent in case it should be able to interact with the ´StickyScrollUp´ component.
+**Important**: To work the `StickyScrollUp` component requires to have `StickyScrollUpProvider` somewhere as a parent. Also the `Sticky` component must have the `StickyScrollUpProvider` as parent in case it should be able to interact with the `StickyScrollUp` component.
 
 ``` javascript
 import * as React from 'react';
@@ -66,7 +66,7 @@ render(
       <Sticky container={container}>
         <Header>My Header</Header>
       </Sticky>
-      <div style={{ height: 5000px}}>
+      <div style={{ height: '5000px' }}>
         Lots of content
       </div>
     </div>
