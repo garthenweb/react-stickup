@@ -1,6 +1,6 @@
 {
   "name": "react-stickup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React components for sophisticated sticky behavior",
   "main": "dist/index.js",
   "typings": "./dist/index.d.ts",
