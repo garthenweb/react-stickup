@@ -10,7 +10,13 @@ interface IChildrenOptions {
 interface IProps {
   children?: React.ReactNode | ((options: IChildrenOptions) => React.ReactNode);
   container?: React.RefObject<any>;
+  disableHardwareAcceleration?: boolean;
+  style?: React.CSSProperties;
   stickyOffset: number;
+  updateStickyOffset?: (offset: number) => void;
+  stickyProps?: {
+    style?: React.CSSProperties;
+  };
 }
 
 interface IRect {
@@ -35,8 +41,14 @@ interface IState {
   initRect: IRectOptional;
 }
 
+const prefixTransform = (transform: string): React.CSSProperties => ({
+  transform,
+  WebkitTransform: transform,
+  msTransform: transform,
+  OTransform: transform,
+});
+
 const baseStyles: React.CSSProperties = {
-  willChange: 'position, top',
   position: 'static',
   top: 'auto',
   width: '100%',
@@ -47,6 +59,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
   private placeholderRef: React.RefObject<any>;
   static defaultProps = {
     stickyOffset: 0,
+    stickyProps: {},
+    disableHardwareAcceleration: false,
   };
 
   constructor(props: IProps) {
@@ -127,30 +141,38 @@ class Sticky extends React.PureComponent<IProps, IState> {
   getStickyStyles(
     rect: IRect | null,
     containerRect: IRect | null,
-  ): React.CSSProperties | null {
+  ): React.CSSProperties {
+    const { style = {} } = this.props.stickyProps;
     if (!rect || !containerRect) {
-      return null;
+      return style;
     }
 
-    const offset = this.props.stickyOffset;
+    const { stickyOffset: offset, disableHardwareAcceleration } = this.props;
     const isSticky = this.isSticky(rect, containerRect);
-    const transform = `
-      translateZ(0)
-      translateY(${isSticky ? offset : 0}px)
-    `;
+    const translate = `translateY(${isSticky ? offset : 0}px)`;
+    const transform = disableHardwareAcceleration
+      ? translate
+      : `translateZ(0) ${translate}`;
+    const willChange = disableHardwareAcceleration
+      ? null
+      : 'position, top, transform';
     return {
-      transform,
+      ...prefixTransform(transform),
+      willChange,
       ...baseStyles,
       ...this.calcPositionStyles(rect, containerRect),
+      ...style,
     };
   }
 
   getPlaceholderStyles(): React.CSSProperties {
+    const { style = {} } = this.props;
     const { height = 'auto', width = 'auto' } = this.state.initRect;
     return {
       position: 'relative',
       height,
       width,
+      ...style,
     };
   }
 
@@ -162,10 +184,12 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
   renderSticky(rect: IRect | null, containerRect: IRect | null) {
     const { children } = this.props;
+    const { style, ...stickyProps } = this.props.stickyProps;
     return (
       <div
         ref={this.stickyRef}
         style={this.getStickyStyles(rect, containerRect) || {}}
+        {...stickyProps}
       >
         {typeof children === 'function'
           ? children({
@@ -178,9 +202,22 @@ class Sticky extends React.PureComponent<IProps, IState> {
   }
 
   render() {
-    const { container } = this.props;
+    const {
+      container,
+      stickyOffset,
+      children,
+      style,
+      disableHardwareAcceleration,
+      stickyProps,
+      updateStickyOffset,
+      ...props
+    } = this.props;
     return (
-      <div ref={this.placeholderRef} style={this.getPlaceholderStyles()}>
+      <div
+        ref={this.placeholderRef}
+        style={this.getPlaceholderStyles()}
+        {...props}
+      >
         <ObserveBoundingClientRect node={container || this.placeholderRef}>
           {containerRect => (
             <ObserveBoundingClientRect

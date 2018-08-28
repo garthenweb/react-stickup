@@ -26,14 +26,17 @@ class Example extends React.PureComponent {
         <Placeholder />
 
         <div ref={this.container1}>
-          <Sticky container={this.container1}>
+          <Sticky container={this.container1} style={{ marginTop: '100px' }}>
             <div className="sticky-inline">Sticky inline1</div>
           </Sticky>
           <Placeholder />
         </div>
 
         <div ref={this.container2}>
-          <Sticky container={this.container2}>
+          <Sticky
+            container={this.container2}
+            stickyProps={{ className: 'sticky-placeholder' }}
+          >
             {({ isSticky, isDockedToBottom }) => (
               <div className="sticky-inline">
                 Sticky inline2
@@ -48,7 +51,7 @@ class Example extends React.PureComponent {
           <Placeholder />
         </div>
 
-        <Sticky>
+        <Sticky disableHardwareAcceleration>
           <div className="sticky-inline">Sticky inline3</div>
         </Sticky>
 
