@@ -14,6 +14,15 @@ interface IRect {
   right: number;
 }
 
+interface IRectOptional {
+  height?: number;
+  width?: number;
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+}
+
 interface IScroll {
   y: number;
   yTurn: number;
@@ -24,7 +33,12 @@ interface IScroll {
 
 interface IProps {
   scroll: IScroll;
+  style?: React.CSSProperties;
   updateStickyOffset?: (offset: number) => void;
+}
+
+interface IState {
+  initRect: IRectOptional;
 }
 
 const calcPositionStyles = (
@@ -76,11 +90,15 @@ const baseStyles: React.CSSProperties = {
   zIndex: 1,
 };
 
-class StickyScrollUp extends React.PureComponent<IProps> {
+class StickyScrollUp extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any>;
   constructor(props: IProps) {
     super(props);
     this.stickyRef = React.createRef();
+
+    this.state = {
+      initRect: {},
+    };
   }
 
   componentDidUpdate() {
@@ -91,10 +109,30 @@ class StickyScrollUp extends React.PureComponent<IProps> {
     }
   }
 
+  getPlaceholderStyles(): React.CSSProperties {
+    const { style = {} } = this.props;
+    const { height = 'auto', width = 'auto' } = this.state.initRect;
+    return {
+      position: 'relative',
+      height,
+      width,
+      ...style,
+    };
+  }
+
+  setInitials = (rect: IRect) => {
+    this.setState({
+      initRect: rect,
+    });
+  };
+
   render() {
     const { scroll, children } = this.props;
     return (
-      <ObserveBoundingClientRect node={this.stickyRef}>
+      <ObserveBoundingClientRect
+        node={this.stickyRef}
+        setInitials={this.setInitials}
+      >
         {rect => {
           const styles = rect
             ? {
@@ -103,8 +141,10 @@ class StickyScrollUp extends React.PureComponent<IProps> {
               }
             : null;
           return (
-            <div ref={this.stickyRef} style={styles}>
-              {children}
+            <div style={this.getPlaceholderStyles()}>
+              <div ref={this.stickyRef} style={styles}>
+                {children}
+              </div>
             </div>
           );
         }}
