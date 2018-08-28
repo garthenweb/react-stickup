@@ -34,6 +34,7 @@ interface IScroll {
 interface IProps {
   scroll: IScroll;
   style?: React.CSSProperties;
+  disabled?: boolean;
   updateStickyOffset?: (offset: number) => void;
 }
 
@@ -92,6 +93,10 @@ const baseStyles: React.CSSProperties = {
 
 class StickyScrollUp extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any>;
+  static defaultProps = {
+    disabled: false,
+  };
+
   constructor(props: IProps) {
     super(props);
     this.stickyRef = React.createRef();
@@ -127,19 +132,20 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
   };
 
   render() {
-    const { scroll, children } = this.props;
+    const { scroll, children, disabled } = this.props;
     return (
       <ObserveBoundingClientRect
         node={this.stickyRef}
         setInitials={this.setInitials}
       >
         {rect => {
-          const styles = rect
-            ? {
-                ...baseStyles,
-                ...calcPositionStyles(rect, scroll),
-              }
-            : null;
+          const styles =
+            !disabled && rect
+              ? {
+                  ...baseStyles,
+                  ...calcPositionStyles(rect, scroll),
+                }
+              : null;
           return (
             <div style={this.getPlaceholderStyles()}>
               <div ref={this.stickyRef} style={styles}>

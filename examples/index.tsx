@@ -7,7 +7,7 @@ import './styles.css';
 
 const Placeholder = () => <div className="placeholder" />;
 
-class Example extends React.PureComponent {
+class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   private container1: React.RefObject<any>;
   private container2: React.RefObject<any>;
 
@@ -15,12 +15,21 @@ class Example extends React.PureComponent {
     super(props);
     this.container1 = React.createRef();
     this.container2 = React.createRef();
+    this.state = {
+      disableHeader: false,
+    }
+  }
+
+  toggleHeaderState() {
+    this.setState({
+      disableHeader: !this.state.disableHeader
+    })
   }
 
   render() {
     return (
       <>
-        <StickyScrollUp>
+        <StickyScrollUp disabled={this.state.disableHeader}>
           <div className="header">Header</div>
         </StickyScrollUp>
         <Placeholder />
@@ -56,6 +65,7 @@ class Example extends React.PureComponent {
         </Sticky>
 
         <Placeholder />
+        <button onClick={() => this.toggleHeaderState()}>Toggle Header Active State</button>
         <Placeholder />
         <Placeholder />
       </>
