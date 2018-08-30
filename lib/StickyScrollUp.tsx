@@ -62,7 +62,7 @@ const calcPositionStyles = (
     };
   }
 
-  if (scroll.y === 0) {
+  if (scroll.y <= 0) {
     return {
       position: 'absolute',
       top: 0,
