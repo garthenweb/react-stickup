@@ -1,46 +1,20 @@
 import * as React from 'react';
+import { connectViewportScroll } from 'react-viewport-utils';
+
+import { connect as connectStickyOffsetUpdater } from './StickyScrollUpProvider';
+import Placeholder from './Placeholder';
+import StickyElement from './StickyElement';
+
 import {
-  ObserveBoundingClientRect,
-  connectViewportScroll,
-} from 'react-viewport-utils';
-import { connect as connectStickyGroup } from './StickyScrollUpProvider';
+  IRect,
+  IScroll,
+  IStickyComponentProps,
+  TRenderChildren,
+} from './types';
 
-interface IRect {
-  height: number;
-  width: number;
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
-interface IRectOptional {
-  height?: number;
-  width?: number;
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-}
-
-interface IScroll {
-  y: number;
-  yTurn: number;
-  yDTurn: number;
-  isScrollingDown: boolean;
-  isScrollingUp: boolean;
-}
-
-interface IProps {
+interface IProps extends IStickyComponentProps<{}> {
   scroll: IScroll;
-  style?: React.CSSProperties;
-  disabled?: boolean;
-  updateStickyOffset?: (offset: number) => void;
   defaultOffsetTop?: number;
-}
-
-interface IState {
-  initRect: IRectOptional;
 }
 
 const calcPositionStyles = (
@@ -91,29 +65,20 @@ const calcPositionStyles = (
   };
 };
 
-const baseStyles: React.CSSProperties = {
-  transform: 'translateZ(0)',
-  willChange: 'position, top',
-  position: 'static',
-  top: 'auto',
-  width: '100%',
-  zIndex: 1,
-};
-
-class StickyScrollUp extends React.PureComponent<IProps, IState> {
+class StickyScrollUp extends React.PureComponent<IProps> {
   private stickyRef: React.RefObject<any>;
   static defaultProps = {
     disabled: false,
     defaultOffsetTop: 0,
+    stickyProps: {
+      style: {},
+    },
+    disableHardwareAcceleration: false,
   };
 
   constructor(props: IProps) {
     super(props);
     this.stickyRef = React.createRef();
-
-    this.state = {
-      initRect: {},
-    };
   }
 
   componentDidUpdate() {
@@ -124,51 +89,53 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     }
   }
 
-  getPlaceholderStyles(): React.CSSProperties {
-    const { style = {} } = this.props;
-    const { height = 'auto', width = 'auto' } = this.state.initRect;
-    return {
-      position: 'relative',
-      height,
-      width,
-      ...style,
-    };
+  getStickyStyles(stickyRect: IRect | null) {
+    if (!stickyRect) {
+      return {};
+    }
+
+    const styles = calcPositionStyles(stickyRect, this.props.scroll, {
+      offsetTop: this.props.defaultOffsetTop,
+    });
+
+    if (!this.props.disableHardwareAcceleration) {
+      Object.assign(styles, {
+        transform: `translateZ(0)`,
+        willChange: 'position, top, transform',
+      });
+    }
+
+    return styles;
   }
 
-  setInitials = (rect: IRect) => {
-    this.setState({
-      initRect: rect,
-    });
-  };
+  renderSticky(stickyRect: IRect | null) {
+    const { stickyProps, children, disabled } = this.props;
+    const styles = this.getStickyStyles(stickyRect);
+
+    return (
+      <StickyElement<TRenderChildren<undefined>>
+        forwardRef={this.stickyRef}
+        positionStyle={styles}
+        disabled={disabled}
+        children={children}
+        {...stickyProps}
+      />
+    );
+  }
 
   render() {
-    const { scroll, children, disabled, defaultOffsetTop } = this.props;
     return (
-      <ObserveBoundingClientRect
+      <Placeholder
         node={this.stickyRef}
-        setInitials={this.setInitials}
+        style={this.props.style}
+        className={this.props.className}
       >
-        {rect => {
-          const styles =
-            !disabled && rect
-              ? {
-                  ...baseStyles,
-                  ...calcPositionStyles(rect, scroll, {
-                    offsetTop: defaultOffsetTop,
-                  }),
-                }
-              : null;
-          return (
-            <div style={this.getPlaceholderStyles()}>
-              <div ref={this.stickyRef} style={styles}>
-                {children}
-              </div>
-            </div>
-          );
-        }}
-      </ObserveBoundingClientRect>
+        {r => this.renderSticky(r)}
+      </Placeholder>
     );
   }
 }
 
-export default connectStickyGroup()(connectViewportScroll()(StickyScrollUp));
+export default connectStickyOffsetUpdater()(
+  connectViewportScroll()(StickyScrollUp),
+);

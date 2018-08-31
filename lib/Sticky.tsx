@@ -1,65 +1,30 @@
 import * as React from 'react';
 import { ObserveBoundingClientRect } from 'react-viewport-utils';
-import { connect as connectStickyGroup } from './StickyScrollUpProvider';
+
+import { connect as connectStickyOffset } from './StickyScrollUpProvider';
+import Placeholder from './Placeholder';
+import StickyElement from './StickyElement';
+
+import { IRect, TRenderChildren, IStickyComponentProps } from './types';
 
 interface IChildrenOptions {
   isSticky: boolean;
   isDockedToBottom: boolean;
 }
 
-interface IProps {
-  children?: React.ReactNode | ((options: IChildrenOptions) => React.ReactNode);
+interface IProps extends IStickyComponentProps<IChildrenOptions> {
   container?: React.RefObject<any>;
-  disableHardwareAcceleration?: boolean;
-  style?: React.CSSProperties;
-  stickyOffset: number;
-  updateStickyOffset?: (offset: number) => void;
-  stickyProps?: {
-    style?: React.CSSProperties;
-  };
 }
 
-interface IRect {
-  height: number;
-  width: number;
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
-interface IRectOptional {
-  height?: number;
-  width?: number;
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-}
-
-interface IState {
-  initRect: IRectOptional;
-}
-
-const prefixTransform = (transform: string): React.CSSProperties => ({
-  transform,
-  WebkitTransform: transform,
-  msTransform: transform,
-  OTransform: transform,
-});
-
-const baseStyles: React.CSSProperties = {
-  position: 'static',
-  top: 'auto',
-  width: '100%',
-};
-
-class Sticky extends React.PureComponent<IProps, IState> {
+class Sticky extends React.PureComponent<IProps> {
   private stickyRef: React.RefObject<any>;
   private placeholderRef: React.RefObject<any>;
   static defaultProps = {
+    disabled: false,
     stickyOffset: 0,
-    stickyProps: {},
+    stickyProps: {
+      styles: {},
+    },
     disableHardwareAcceleration: false,
   };
 
@@ -68,10 +33,6 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
     this.stickyRef = React.createRef();
     this.placeholderRef = React.createRef();
-
-    this.state = {
-      initRect: {},
-    };
   }
 
   hasContainer = () => {
@@ -142,95 +103,71 @@ class Sticky extends React.PureComponent<IProps, IState> {
     rect: IRect | null,
     containerRect: IRect | null,
   ): React.CSSProperties {
-    const { style = {} } = this.props.stickyProps;
     if (!rect || !containerRect) {
-      return style;
+      return {};
     }
 
-    const { stickyOffset: offset, disableHardwareAcceleration } = this.props;
+    const styles = this.calcPositionStyles(rect, containerRect);
     const isSticky = this.isSticky(rect, containerRect);
-    const translate = `translateY(${isSticky ? offset : 0}px)`;
-    const transform = disableHardwareAcceleration
-      ? translate
-      : `translateZ(0) ${translate}`;
-    const willChange = disableHardwareAcceleration
-      ? null
-      : 'position, top, transform';
-    return {
-      ...prefixTransform(transform),
-      willChange,
-      ...baseStyles,
-      ...this.calcPositionStyles(rect, containerRect),
-      ...style,
-    };
+    const transform = `translateY(${isSticky ? this.props.stickyOffset : 0}px)`;
+
+    if (this.props.disableHardwareAcceleration) {
+      styles.transform = transform;
+    } else {
+      Object.assign(styles, {
+        transform: `${transform} translateZ(0)`,
+        willChange: 'position, top, transform',
+      });
+    }
+
+    return styles;
   }
 
-  getPlaceholderStyles(): React.CSSProperties {
-    const { style = {} } = this.props;
-    const { height = 'auto', width = 'auto' } = this.state.initRect;
-    return {
-      position: 'relative',
-      height,
-      width,
-      ...style,
-    };
-  }
+  renderSticky(stickyRect: IRect | null, containerRect: IRect | null) {
+    const { children, disabled, stickyProps } = this.props;
+    const styles = this.getStickyStyles(stickyRect, containerRect);
 
-  setInitials = (rect: IRectOptional) => {
-    this.setState({
-      initRect: rect,
-    });
-  };
-
-  renderSticky(rect: IRect | null, containerRect: IRect | null) {
-    const { children } = this.props;
-    const { style, ...stickyProps } = this.props.stickyProps;
     return (
-      <div
-        ref={this.stickyRef}
-        style={this.getStickyStyles(rect, containerRect) || {}}
-        {...stickyProps}
+      <StickyElement<
+        TRenderChildren<{
+          isSticky: boolean;
+          isDockedToBottom: boolean;
+        }>
       >
-        {typeof children === 'function'
-          ? children({
-              isSticky: this.isSticky(rect, containerRect),
-              isDockedToBottom: this.isDockedToBottom(rect, containerRect),
-            })
-          : children}
-      </div>
+        forwardRef={this.stickyRef}
+        positionStyle={styles}
+        disabled={disabled}
+        children={children}
+        renderArgs={() => ({
+          isSticky: this.isSticky(stickyRect, containerRect),
+          isDockedToBottom: this.isDockedToBottom(stickyRect, containerRect),
+        })}
+        {...stickyProps}
+      />
     );
   }
 
-  render() {
-    const {
-      container,
-      stickyOffset,
-      children,
-      style,
-      disableHardwareAcceleration,
-      stickyProps,
-      updateStickyOffset,
-      ...props
-    } = this.props;
+  renderContainerObserver = (stickyRect: IRect | null) => {
+    const node = this.props.container || this.placeholderRef;
     return (
-      <div
-        ref={this.placeholderRef}
-        style={this.getPlaceholderStyles()}
-        {...props}
+      <ObserveBoundingClientRect node={node}>
+        {containerRect => this.renderSticky(stickyRect, containerRect)}
+      </ObserveBoundingClientRect>
+    );
+  };
+
+  render() {
+    return (
+      <Placeholder
+        forwardRef={this.placeholderRef}
+        node={this.stickyRef}
+        style={this.props.style}
+        className={this.props.className}
       >
-        <ObserveBoundingClientRect node={container || this.placeholderRef}>
-          {containerRect => (
-            <ObserveBoundingClientRect
-              node={this.stickyRef}
-              setInitials={this.setInitials}
-            >
-              {rect => this.renderSticky(rect, containerRect)}
-            </ObserveBoundingClientRect>
-          )}
-        </ObserveBoundingClientRect>
-      </div>
+        {this.renderContainerObserver}
+      </Placeholder>
     );
   }
 }
 
-export default connectStickyGroup()(Sticky);
+export default connectStickyOffset()(Sticky);
