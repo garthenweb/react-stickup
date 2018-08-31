@@ -36,6 +36,7 @@ interface IProps {
   style?: React.CSSProperties;
   disabled?: boolean;
   updateStickyOffset?: (offset: number) => void;
+  defaultOffsetTop?: number;
 }
 
 interface IState {
@@ -45,11 +46,19 @@ interface IState {
 const calcPositionStyles = (
   rect: IRect,
   scroll: IScroll,
+  { offsetTop = 0 },
 ): React.CSSProperties => {
   if (scroll.isScrollingDown) {
+    if (rect.top > 0 && scroll.y < offsetTop) {
+      return {
+        position: 'absolute',
+        top: 0,
+      };
+    }
+
     return {
       position: 'absolute',
-      top: scroll.y + rect.top,
+      top: scroll.y - offsetTop + rect.top,
     };
   }
 
@@ -58,11 +67,11 @@ const calcPositionStyles = (
   if (!isTopVisible && !isBottomVisible) {
     return {
       position: 'absolute',
-      top: scroll.y + rect.top,
+      top: scroll.y - offsetTop + rect.top,
     };
   }
 
-  if (scroll.y <= 0) {
+  if (scroll.y <= offsetTop) {
     return {
       position: 'absolute',
       top: 0,
@@ -72,7 +81,7 @@ const calcPositionStyles = (
   if (scroll.yDTurn === 0) {
     return {
       position: 'absolute',
-      top: scroll.yTurn - rect.height,
+      top: scroll.yTurn - offsetTop - rect.height,
     };
   }
 
@@ -95,6 +104,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any>;
   static defaultProps = {
     disabled: false,
+    defaultOffsetTop: 0,
   };
 
   constructor(props: IProps) {
@@ -132,7 +142,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
   };
 
   render() {
-    const { scroll, children, disabled } = this.props;
+    const { scroll, children, disabled, defaultOffsetTop } = this.props;
     return (
       <ObserveBoundingClientRect
         node={this.stickyRef}
@@ -143,7 +153,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
             !disabled && rect
               ? {
                   ...baseStyles,
-                  ...calcPositionStyles(rect, scroll),
+                  ...calcPositionStyles(rect, scroll, {
+                    offsetTop: defaultOffsetTop,
+                  }),
                 }
               : null;
           return (

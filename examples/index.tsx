@@ -29,7 +29,11 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   render() {
     return (
       <>
-        <StickyScrollUp disabled={this.state.disableHeader}>
+        <Placeholder />
+        <StickyScrollUp
+          disabled={this.state.disableHeader}
+          defaultOffsetTop={505}
+        >
           <div className="header">Header</div>
         </StickyScrollUp>
         <Placeholder />
