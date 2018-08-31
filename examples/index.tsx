@@ -17,13 +17,13 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
     this.container2 = React.createRef();
     this.state = {
       disableHeader: false,
-    }
+    };
   }
 
   toggleHeaderState() {
     this.setState({
-      disableHeader: !this.state.disableHeader
-    })
+      disableHeader: !this.state.disableHeader,
+    });
   }
 
   render() {
@@ -69,7 +69,9 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
         </Sticky>
 
         <Placeholder />
-        <button onClick={() => this.toggleHeaderState()}>Toggle Header Active State</button>
+        <button onClick={() => this.toggleHeaderState()}>
+          Toggle Header Active State
+        </button>
         <Placeholder />
         <Placeholder />
       </>
