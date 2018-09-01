@@ -10,11 +10,13 @@ const Placeholder = () => <div className="placeholder" />;
 class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   private container1: React.RefObject<any>;
   private container2: React.RefObject<any>;
+  private container3: React.RefObject<any>;
 
   constructor(props) {
     super(props);
     this.container1 = React.createRef();
     this.container2 = React.createRef();
+    this.container3 = React.createRef();
     this.state = {
       disableHeader: false,
     };
@@ -64,8 +66,15 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
           <Placeholder />
         </div>
 
+        <div className="wrapper" ref={this.container3}>
+          <Sticky container={this.container3}>
+            <div className="sticky-inline">Sticky inline3</div>
+          </Sticky>
+          <Placeholder />
+        </div>
+
         <Sticky disableHardwareAcceleration>
-          <div className="sticky-inline">Sticky inline3</div>
+          <div className="sticky-inline">Sticky inline4</div>
         </Sticky>
 
         <Placeholder />

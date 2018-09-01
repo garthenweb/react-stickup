@@ -11,7 +11,7 @@ interface IProps<R> {
 }
 
 const baseStyles: React.CSSProperties = {
-  width: '100%',
+  width: 'inherit',
 };
 
 const prefixTransform = (transform: string): React.CSSProperties => ({

@@ -26,3 +26,7 @@
   background: black;
   border-bottom: 5px solid red;
 }
+
+.wrapper {
+  margin: 0 50px;
+}
