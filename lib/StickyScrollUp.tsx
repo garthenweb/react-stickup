@@ -32,7 +32,7 @@ const calcPositionStyles = (
 
     return {
       position: 'absolute',
-      top: scroll.y - offsetTop + rect.top,
+      top: Math.max(scroll.y - offsetTop + rect.top, 0),
     };
   }
 
