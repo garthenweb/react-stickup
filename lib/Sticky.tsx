@@ -23,7 +23,7 @@ class Sticky extends React.PureComponent<IProps> {
     disabled: false,
     stickyOffset: 0,
     stickyProps: {
-      styles: {},
+      style: {},
     },
     disableHardwareAcceleration: false,
   };
