@@ -8,6 +8,7 @@ interface IProps {
   className?: string;
   forwardRef?: React.RefObject<any>;
   node: React.RefObject<any>;
+  disabled: boolean;
   children: (rect: IRect | null) => React.ReactNode;
 }
 
@@ -51,7 +52,7 @@ export default class Placeholder extends React.PureComponent<IProps, IState> {
     return (
       <div
         ref={this.props.forwardRef}
-        style={this.getPlaceholderStyles()}
+        style={!this.props.disabled ? this.getPlaceholderStyles() : null}
         className={this.props.className}
       >
         <ObserveBoundingClientRect

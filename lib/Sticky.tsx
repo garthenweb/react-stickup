@@ -163,6 +163,7 @@ class Sticky extends React.PureComponent<IProps> {
         node={this.stickyRef}
         style={this.props.style}
         className={this.props.className}
+        disabled={this.props.disabled}
       >
         {this.renderContainerObserver}
       </Placeholder>
