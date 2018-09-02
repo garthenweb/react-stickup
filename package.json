@@ -9,7 +9,7 @@
     "compile": "tsc --project ./tsconfig.json",
     "test": "jest lib",
     "fmt": "prettier --write \"lib/*.{ts,tsx}\"  \"examples/*.{ts,tsx}\"",
-    "publish": "npm run compile",
+    "prepublish": "npm run compile",
     "postversion": "git push && git push --tags"
   },
   "repository": {
