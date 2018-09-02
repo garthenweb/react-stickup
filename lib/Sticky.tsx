@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { ObserveBoundingClientRect, IRect } from 'react-viewport-utils';
 
-import { connect as connectStickyOffset, IInjectedProps as IStickyInjectedProps } from './StickyScrollUpProvider';
+import {
+  connect as connectStickyScrollUpProvider,
+  IInjectedProps as IStickyInjectedProps,
+} from './StickyScrollUpProvider';
 import Placeholder from './Placeholder';
 import StickyElement from './StickyElement';
 
@@ -173,4 +176,4 @@ class Sticky extends React.PureComponent<IProps> {
   }
 }
 
-export default connectStickyOffset()<IOwnProps>(Sticky);
+export default connectStickyScrollUpProvider()<IOwnProps>(Sticky);
