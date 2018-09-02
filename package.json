@@ -22,7 +22,9 @@
   "author": "Jannick Garthen <jannick.garthen@gmail.com>",
   "keywords": [
     "react",
-    "viewport"
+    "sticky",
+    "header",
+    "scroll"
   ],
   "license": "MIT",
   "devDependencies": {
