@@ -6,12 +6,13 @@ import {
   IDimensions,
 } from 'react-viewport-utils';
 import compose from 'recompose/compose';
+import mapProps from 'recompose/mapProps';
 
 import {
   connect as connectStickyScrollUpProvider,
   IInjectedProps as IStickyInjectedProps,
 } from './StickyScrollUpProvider';
-import Placeholder from './Placeholder';
+import Placeholder, { IUpdateOptions } from './Placeholder';
 import StickyElement from './StickyElement';
 
 import { IStickyComponentProps, TRenderChildren } from './types';
@@ -121,7 +122,7 @@ class StickyScrollUp extends React.PureComponent<IProps> {
     return styles;
   }
 
-  renderSticky(stickyRect: IRect | null) {
+  renderSticky(stickyRect: IRect | null, { isRecalculating }: IUpdateOptions) {
     const { stickyProps, children, disabled } = this.props;
     const styles = this.getStickyStyles(stickyRect);
 
@@ -129,7 +130,7 @@ class StickyScrollUp extends React.PureComponent<IProps> {
       <StickyElement<TRenderChildren<undefined>>
         forwardRef={this.stickyRef}
         positionStyle={styles}
-        disabled={disabled}
+        disabled={disabled || isRecalculating}
         children={children}
         {...stickyProps}
       />
@@ -143,8 +144,9 @@ class StickyScrollUp extends React.PureComponent<IProps> {
         style={this.props.style}
         className={this.props.className}
         disabled={this.props.disabled}
+        disableResizing={this.props.disableResizing}
       >
-        {r => this.renderSticky(r)}
+        {(rect, options) => this.renderSticky(rect, options)}
       </Placeholder>
     );
   }
@@ -153,4 +155,8 @@ class StickyScrollUp extends React.PureComponent<IProps> {
 export default compose<IOwnProps, IOwnProps>(
   connectStickyScrollUpProvider(),
   connectViewportScroll(),
+  mapProps(({ dimensions, scroll, ...props }) => ({
+    scroll,
+    ...props,
+  })),
 )(StickyScrollUp);

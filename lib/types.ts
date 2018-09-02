@@ -6,8 +6,8 @@ export interface IStickyComponentProps<R> {
   children?: TRenderChildren<R>;
   className?: string;
   style?: React.CSSProperties;
-
   disableHardwareAcceleration?: boolean;
   disabled?: boolean;
+  disableResizing?: boolean;
   stickyProps?: {};
 }

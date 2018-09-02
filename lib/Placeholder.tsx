@@ -1,24 +1,41 @@
 import * as React from 'react';
 
-import { ObserveBoundingClientRect, IRect } from 'react-viewport-utils';
+import {
+  ObserveBoundingClientRect,
+  connectViewport,
+  IRect,
+} from 'react-viewport-utils';
+import compose from 'recompose/compose';
+import mapProps from 'recompose/mapProps';
 
-interface IProps {
+export interface IUpdateOptions {
+  isRecalculating: boolean;
+}
+
+interface IOwnProps {
   style?: React.CSSProperties;
   className?: string;
   forwardRef?: React.RefObject<any>;
   node: React.RefObject<any>;
   disabled: boolean;
-  children: (rect: IRect | null) => React.ReactNode;
+  disableResizing?: boolean;
+  children: (rect: IRect | null, options: IUpdateOptions) => React.ReactNode;
+}
+
+interface IProps extends IOwnProps {
+  size: string;
 }
 
 interface IState {
   height?: number | 'auto';
   width?: number | 'auto';
+  isRecalculating: boolean;
 }
 
-export default class Placeholder extends React.PureComponent<IProps, IState> {
+class Placeholder extends React.PureComponent<IProps, IState> {
   static defaultProps = {
     style: {},
+    disableResizing: false,
   };
 
   constructor(props: IProps) {
@@ -26,6 +43,7 @@ export default class Placeholder extends React.PureComponent<IProps, IState> {
     this.state = {
       height: 'auto',
       width: 'auto',
+      isRecalculating: false,
     };
   }
 
@@ -47,20 +65,55 @@ export default class Placeholder extends React.PureComponent<IProps, IState> {
     };
   }
 
+  componentDidUpdate(prevProps: IProps) {
+    if (!this.props.disableResizing) {
+      if (prevProps.size !== this.props.size) {
+        this.setState({
+          isRecalculating: true,
+        });
+      }
+    }
+  }
+
+  handleUpdate = (rect: IRect) => {
+    if (!this.state.isRecalculating) {
+      return;
+    }
+    this.setState({
+      isRecalculating: false,
+      height: rect.height,
+      width: rect.width,
+    });
+  };
+
   render() {
+    const isActive = !this.state.isRecalculating && !this.props.disabled;
     return (
       <div
         ref={this.props.forwardRef}
-        style={!this.props.disabled ? this.getPlaceholderStyles() : null}
+        style={isActive ? this.getPlaceholderStyles() : null}
         className={this.props.className}
       >
         <ObserveBoundingClientRect
           node={this.props.node}
-          setInitials={this.setDimensions}
+          onInit={this.setDimensions}
+          onUpdate={this.handleUpdate}
         >
-          {this.props.children}
+          {rect =>
+            this.props.children(rect, {
+              isRecalculating: this.state.isRecalculating,
+            })
+          }
         </ObserveBoundingClientRect>
       </div>
     );
   }
 }
+
+export default compose<IOwnProps, IOwnProps>(
+  connectViewport(),
+  mapProps(({ dimensions, scroll, ...props }) => ({
+    size: `${dimensions.width}x${dimensions.height}`,
+    ...props,
+  })),
+)(Placeholder);

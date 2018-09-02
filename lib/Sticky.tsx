@@ -5,7 +5,7 @@ import {
   connect as connectStickyScrollUpProvider,
   IInjectedProps as IStickyInjectedProps,
 } from './StickyScrollUpProvider';
-import Placeholder from './Placeholder';
+import Placeholder, { IUpdateOptions } from './Placeholder';
 import StickyElement from './StickyElement';
 
 import { TRenderChildren, IStickyComponentProps } from './types';
@@ -128,7 +128,11 @@ class Sticky extends React.PureComponent<IProps> {
     return styles;
   }
 
-  renderSticky(stickyRect: IRect | null, containerRect: IRect | null) {
+  renderSticky(
+    stickyRect: IRect | null,
+    containerRect: IRect | null,
+    { isRecalculating }: IUpdateOptions,
+  ) {
     const { children, disabled, stickyProps } = this.props;
     const styles = this.getStickyStyles(stickyRect, containerRect);
 
@@ -141,7 +145,7 @@ class Sticky extends React.PureComponent<IProps> {
       >
         forwardRef={this.stickyRef}
         positionStyle={styles}
-        disabled={disabled}
+        disabled={disabled || isRecalculating}
         children={children}
         renderArgs={() => ({
           isSticky: this.isSticky(stickyRect, containerRect),
@@ -152,11 +156,14 @@ class Sticky extends React.PureComponent<IProps> {
     );
   }
 
-  renderContainerObserver = (stickyRect: IRect | null) => {
+  renderContainerObserver = (
+    stickyRect: IRect | null,
+    options: IUpdateOptions,
+  ) => {
     const node = this.props.container || this.placeholderRef;
     return (
       <ObserveBoundingClientRect node={node}>
-        {containerRect => this.renderSticky(stickyRect, containerRect)}
+        {containerRect => this.renderSticky(stickyRect, containerRect, options)}
       </ObserveBoundingClientRect>
     );
   };
@@ -169,6 +176,7 @@ class Sticky extends React.PureComponent<IProps> {
         style={this.props.style}
         className={this.props.className}
         disabled={this.props.disabled}
+        disableResizing={this.props.disableResizing}
       >
         {this.renderContainerObserver}
       </Placeholder>
