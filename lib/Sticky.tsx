@@ -1,20 +1,22 @@
 import * as React from 'react';
-import { ObserveBoundingClientRect } from 'react-viewport-utils';
+import { ObserveBoundingClientRect, IRect } from 'react-viewport-utils';
 
-import { connect as connectStickyOffset } from './StickyScrollUpProvider';
+import { connect as connectStickyOffset, IInjectedProps as IStickyInjectedProps } from './StickyScrollUpProvider';
 import Placeholder from './Placeholder';
 import StickyElement from './StickyElement';
 
-import { IRect, TRenderChildren, IStickyComponentProps } from './types';
+import { TRenderChildren, IStickyComponentProps } from './types';
 
 interface IChildrenOptions {
   isSticky: boolean;
   isDockedToBottom: boolean;
 }
 
-interface IProps extends IStickyComponentProps<IChildrenOptions> {
+interface IOwnProps extends IStickyComponentProps<IChildrenOptions> {
   container?: React.RefObject<any>;
 }
+
+interface IProps extends IOwnProps, IStickyInjectedProps {}
 
 class Sticky extends React.PureComponent<IProps> {
   private stickyRef: React.RefObject<any>;
@@ -171,4 +173,4 @@ class Sticky extends React.PureComponent<IProps> {
   }
 }
 
-export default connectStickyOffset()(Sticky);
+export default connectStickyOffset()<IOwnProps>(Sticky);

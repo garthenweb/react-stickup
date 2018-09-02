@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { ViewportProvider } from 'react-viewport-utils';
 
+export interface IInjectedProps {
+  stickyOffset: number;
+  updateStickyOffset: (offset: number) => void;
+}
+
 const StickyGroupContext = React.createContext({
   stickyOffset: 0,
   updateStickyOffset: (offset: number) => {},
 });
 
-export const connect = () => (WrappedComponent: React.ComponentType<any>) => (
-  props: any,
-) => {
+export const connect = () => <P extends object>(
+  WrappedComponent: React.ComponentType<P & IInjectedProps>,
+) => (props: P) => {
   return (
     <StickyGroupContext.Consumer>
       {context => (

@@ -1,21 +1,25 @@
 import * as React from 'react';
-import { connectViewportScroll } from 'react-viewport-utils';
+import { connectViewportScroll, IScroll, IRect, IDimensions } from 'react-viewport-utils';
 
-import { connect as connectStickyOffsetUpdater } from './StickyScrollUpProvider';
+import { connect as connectStickyOffsetUpdater, IInjectedProps as IStickyInjectedProps } from './StickyScrollUpProvider';
 import Placeholder from './Placeholder';
 import StickyElement from './StickyElement';
 
 import {
-  IRect,
-  IScroll,
   IStickyComponentProps,
   TRenderChildren,
 } from './types';
 
-interface IProps extends IStickyComponentProps<{}> {
+interface IViewportInjectedProps {
   scroll: IScroll;
+  dimensions: IDimensions;
+}
+
+interface IOwnProps extends IStickyComponentProps<{}> {
   defaultOffsetTop?: number;
 }
+
+interface IProps extends IViewportInjectedProps, IStickyInjectedProps, IOwnProps {}
 
 const calcPositionStyles = (
   rect: IRect,
@@ -137,6 +141,6 @@ class StickyScrollUp extends React.PureComponent<IProps> {
   }
 }
 
-export default connectStickyOffsetUpdater()(
-  connectViewportScroll()(StickyScrollUp),
+export default connectViewportScroll()(
+  connectStickyOffsetUpdater()<IOwnProps>(StickyScrollUp)
 );

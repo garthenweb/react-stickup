@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { ObserveBoundingClientRect } from 'react-viewport-utils';
-import { IRect } from './types';
+import { ObserveBoundingClientRect, IRect } from 'react-viewport-utils';
 
 interface IProps {
   style?: React.CSSProperties;
