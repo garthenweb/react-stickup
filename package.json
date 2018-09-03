@@ -34,6 +34,7 @@
     "@types/react": "^16.4.11",
     "@types/react-dom": "^16.0.7",
     "@types/recompose": "^0.26.4",
+    "babel-polyfill": "^6.26.0",
     "concurrently": "^4.0.0",
     "jest": "^23.5.0",
     "parcel-bundler": "1.9.4",
