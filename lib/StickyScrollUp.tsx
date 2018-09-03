@@ -7,19 +7,22 @@ import {
 } from 'react-viewport-utils';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
+import shallowEqual from 'recompose/shallowEqual';
 
 import {
   connect as connectStickyScrollUpProvider,
-  IInjectedProps as IStickyInjectedProps,
 } from './StickyScrollUpProvider';
 import Placeholder, { IUpdateOptions } from './Placeholder';
 import StickyElement from './StickyElement';
 
 import { IStickyComponentProps, TRenderChildren } from './types';
 
+interface IStickyInjectedProps {
+  updateStickyOffset: (offset: number) => void;
+}
+
 interface IViewportInjectedProps {
   scroll: IScroll;
-  dimensions: IDimensions;
 }
 
 interface IOwnProps extends IStickyComponentProps<{}> {
@@ -79,7 +82,7 @@ const calcPositionStyles = (
   };
 };
 
-class StickyScrollUp extends React.PureComponent<IProps> {
+class StickyScrollUp extends React.Component<IProps> {
   private stickyRef: React.RefObject<any>;
   static defaultProps = {
     disabled: false,
@@ -93,6 +96,15 @@ class StickyScrollUp extends React.PureComponent<IProps> {
   constructor(props: IProps) {
     super(props);
     this.stickyRef = React.createRef();
+  }
+
+  shouldComponentUpdate({ scroll: nextScroll, ...nextProps }: IProps) {
+    const { scroll, ...props } = this.props;
+    const scrollEquals = shallowEqual(nextScroll, scroll);
+    if (!scrollEquals) {
+      return true;
+    }
+    return !shallowEqual(nextProps, props);
   }
 
   componentDidUpdate() {
@@ -155,7 +167,7 @@ class StickyScrollUp extends React.PureComponent<IProps> {
 export default compose<IOwnProps, IOwnProps>(
   connectStickyScrollUpProvider(),
   connectViewportScroll(),
-  mapProps(({ dimensions, scroll, ...props }) => ({
+  mapProps(({ dimensions, scroll, stickyOffset, ...props }) => ({
     scroll,
     ...props,
   })),
