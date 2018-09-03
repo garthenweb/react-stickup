@@ -19,7 +19,9 @@ interface IOwnProps {
   node: React.RefObject<any>;
   disabled: boolean;
   disableResizing?: boolean;
-  children: (rect: IRect | null, options: IUpdateOptions) => React.ReactNode;
+  onRecalculationChange: (isRecalculating: boolean) => void;
+  onUpdate: (rect: IRect | null) => void;
+  children: React.ReactElement<any>;
 }
 
 interface IProps extends IOwnProps {
@@ -71,19 +73,26 @@ class Placeholder extends React.PureComponent<IProps, IState> {
         this.setState({
           isRecalculating: true,
         });
+        this.props.onRecalculationChange(true);
       }
     }
   }
 
   handleUpdate = (rect: IRect) => {
+    if (this.props.onUpdate) {
+      this.props.onUpdate(rect);
+    }
+
     if (!this.state.isRecalculating) {
       return;
     }
+
     this.setState({
       isRecalculating: false,
       height: rect.height,
       width: rect.width,
     });
+    this.props.onRecalculationChange(false);
   };
 
   render() {
@@ -98,13 +107,8 @@ class Placeholder extends React.PureComponent<IProps, IState> {
           node={this.props.node}
           onInit={this.setDimensions}
           onUpdate={this.handleUpdate}
-        >
-          {rect =>
-            this.props.children(rect, {
-              isRecalculating: this.state.isRecalculating,
-            })
-          }
-        </ObserveBoundingClientRect>
+        />
+        {this.props.children}
       </div>
     );
   }

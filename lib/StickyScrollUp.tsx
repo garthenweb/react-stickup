@@ -8,9 +8,7 @@ import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import shallowEqual from 'recompose/shallowEqual';
 
-import {
-  connect as connectStickyScrollUpProvider,
-} from './StickyScrollUpProvider';
+import { connect as connectStickyScrollUpProvider } from './StickyScrollUpProvider';
 import Placeholder, { IUpdateOptions } from './Placeholder';
 import StickyElement from './StickyElement';
 
@@ -32,6 +30,11 @@ interface IProps
   extends IViewportInjectedProps,
     IStickyInjectedProps,
     IOwnProps {}
+
+interface IState {
+  stickyRect: IRect | null;
+  isRecalculating: boolean;
+}
 
 const calcPositionStyles = (
   rect: IRect,
@@ -82,7 +85,7 @@ const calcPositionStyles = (
   };
 };
 
-class StickyScrollUp extends React.Component<IProps> {
+class StickyScrollUp extends React.Component<IProps, IState> {
   private stickyRef: React.RefObject<any>;
   static defaultProps = {
     disabled: false,
@@ -96,15 +99,24 @@ class StickyScrollUp extends React.Component<IProps> {
   constructor(props: IProps) {
     super(props);
     this.stickyRef = React.createRef();
+    this.state = {
+      stickyRect: null,
+      isRecalculating: false,
+    };
   }
 
-  shouldComponentUpdate({ scroll: nextScroll, ...nextProps }: IProps) {
+  shouldComponentUpdate(
+    { scroll: nextScroll, ...nextProps }: IProps,
+    nextState: IState,
+  ) {
     const { scroll, ...props } = this.props;
     const scrollEquals = shallowEqual(nextScroll, scroll);
     if (!scrollEquals) {
       return true;
     }
-    return !shallowEqual(nextProps, props);
+    return (
+      !shallowEqual(nextProps, props) || !shallowEqual(nextState, this.state)
+    );
   }
 
   componentDidUpdate() {
@@ -134,6 +146,18 @@ class StickyScrollUp extends React.Component<IProps> {
     return styles;
   }
 
+  handleUpdate = (stickyRect: IRect | null) => {
+    this.setState({
+      stickyRect,
+    });
+  };
+
+  handleRecalculation = (isRecalculating: boolean) => {
+    this.setState({
+      isRecalculating,
+    });
+  };
+
   renderSticky(stickyRect: IRect | null, { isRecalculating }: IUpdateOptions) {
     const { stickyProps, children, disabled } = this.props;
     const styles = this.getStickyStyles(stickyRect);
@@ -150,6 +174,8 @@ class StickyScrollUp extends React.Component<IProps> {
   }
 
   render() {
+    const { stickyProps, children, disabled } = this.props;
+    const styles = this.getStickyStyles(this.state.stickyRect);
     return (
       <Placeholder
         node={this.stickyRef}
@@ -157,8 +183,16 @@ class StickyScrollUp extends React.Component<IProps> {
         className={this.props.className}
         disabled={this.props.disabled}
         disableResizing={this.props.disableResizing}
+        onUpdate={this.handleUpdate}
+        onRecalculationChange={this.handleRecalculation}
       >
-        {(rect, options) => this.renderSticky(rect, options)}
+        <StickyElement<TRenderChildren<undefined>>
+          forwardRef={this.stickyRef}
+          positionStyle={styles}
+          disabled={disabled || this.state.isRecalculating}
+          children={children}
+          {...stickyProps}
+        />
       </Placeholder>
     );
   }

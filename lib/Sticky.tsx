@@ -21,7 +21,13 @@ interface IOwnProps extends IStickyComponentProps<IChildrenOptions> {
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}
 
-class Sticky extends React.PureComponent<IProps> {
+interface IState {
+  isRecalculating: boolean;
+  stickyRect: IRect | null;
+  containerRect: IRect | null;
+}
+
+class Sticky extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any>;
   private placeholderRef: React.RefObject<any>;
   static defaultProps = {
@@ -38,6 +44,11 @@ class Sticky extends React.PureComponent<IProps> {
 
     this.stickyRef = React.createRef();
     this.placeholderRef = React.createRef();
+    this.state = {
+      containerRect: null,
+      stickyRect: null,
+      isRecalculating: false,
+    };
   }
 
   hasContainer = () => {
@@ -128,6 +139,24 @@ class Sticky extends React.PureComponent<IProps> {
     return styles;
   }
 
+  handlePlaceholderUpdate = (stickyRect: IRect | null) => {
+    this.setState({
+      stickyRect,
+    });
+  };
+
+  handleContainerUpdate = (containerRect: IRect | null) => {
+    this.setState({
+      containerRect,
+    });
+  };
+
+  handleRecalculation = (isRecalculating: boolean) => {
+    this.setState({
+      isRecalculating,
+    });
+  };
+
   renderSticky(
     stickyRect: IRect | null,
     containerRect: IRect | null,
@@ -169,17 +198,46 @@ class Sticky extends React.PureComponent<IProps> {
   };
 
   render() {
+    const { children, disabled, stickyProps } = this.props;
+    const { stickyRect, containerRect, isRecalculating } = this.state;
+    const styles = this.getStickyStyles(stickyRect, containerRect);
     return (
-      <Placeholder
-        forwardRef={this.placeholderRef}
-        node={this.stickyRef}
-        style={this.props.style}
-        className={this.props.className}
-        disabled={this.props.disabled}
-        disableResizing={this.props.disableResizing}
-      >
-        {this.renderContainerObserver}
-      </Placeholder>
+      <>
+        <Placeholder
+          forwardRef={this.placeholderRef}
+          node={this.stickyRef}
+          style={this.props.style}
+          className={this.props.className}
+          disabled={this.props.disabled}
+          disableResizing={this.props.disableResizing}
+          onUpdate={this.handlePlaceholderUpdate}
+          onRecalculationChange={this.handleRecalculation}
+        >
+          <StickyElement<
+            TRenderChildren<{
+              isSticky: boolean;
+              isDockedToBottom: boolean;
+            }>
+          >
+            forwardRef={this.stickyRef}
+            positionStyle={styles}
+            disabled={disabled || isRecalculating}
+            children={children}
+            renderArgs={() => ({
+              isSticky: this.isSticky(stickyRect, containerRect),
+              isDockedToBottom: this.isDockedToBottom(
+                stickyRect,
+                containerRect,
+              ),
+            })}
+            {...stickyProps}
+          />
+        </Placeholder>
+        <ObserveBoundingClientRect
+          node={this.props.container || this.placeholderRef}
+          onUpdate={this.handleContainerUpdate}
+        />
+      </>
     );
   }
 }
