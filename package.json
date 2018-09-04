@@ -6,7 +6,7 @@
   "typings": "./dist/index.d.ts",
   "scripts": {
     "start": "rm -rf ./.cache && parcel ./examples/index.html --out-dir='examples-dist'",
-    "compile:docs": "rm -rf docs && parcel build ./examples/index.html --out-dir='docs'",
+    "compile:docs": "rm -rf docs && parcel build ./examples/index.html --out-dir='docs' --public-url=\"https://garthenweb.github.io/react-stickup/\"",
     "precompile": "rm -rf dist",
     "compile": "tsc --project ./tsconfig.json",
     "test": "jest lib",
