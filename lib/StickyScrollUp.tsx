@@ -1,9 +1,5 @@
 import * as React from 'react';
-import {
-  connectViewportScroll,
-  IScroll,
-  IRect,
-} from 'react-viewport-utils';
+import { connectViewportScroll, IScroll, IRect } from 'react-viewport-utils';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import shallowEqual from 'recompose/shallowEqual';
@@ -157,21 +153,6 @@ class StickyScrollUp extends React.Component<IProps, IState> {
       isRecalculating,
     });
   };
-
-  renderSticky(stickyRect: IRect | null, { isRecalculating }: IUpdateOptions) {
-    const { stickyProps, children, disabled } = this.props;
-    const styles = this.getStickyStyles(stickyRect);
-
-    return (
-      <StickyElement<TRenderChildren<undefined>>
-        forwardRef={this.stickyRef}
-        positionStyle={styles}
-        disabled={disabled || isRecalculating}
-        children={children}
-        {...stickyProps}
-      />
-    );
-  }
 
   render() {
     const { stickyProps, children, disabled } = this.props;

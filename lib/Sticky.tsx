@@ -130,10 +130,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
     if (this.props.disableHardwareAcceleration) {
       styles.transform = transform;
     } else {
-      Object.assign(styles, {
-        transform: `${transform} translateZ(0)`,
-        willChange: 'position, top, transform',
-      });
+      styles.transform = `${transform} translateZ(0)`;
+      styles.willChange = 'position, top, transform';
     }
 
     return styles;
@@ -203,6 +201,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const styles = this.getStickyStyles(stickyRect, containerRect);
     return (
       <>
+        <ObserveBoundingClientRect
+          node={this.props.container || this.placeholderRef}
+          onUpdate={this.handleContainerUpdate}
+        />
         <Placeholder
           forwardRef={this.placeholderRef}
           node={this.stickyRef}
@@ -233,10 +235,6 @@ class Sticky extends React.PureComponent<IProps, IState> {
             {...stickyProps}
           />
         </Placeholder>
-        <ObserveBoundingClientRect
-          node={this.props.container || this.placeholderRef}
-          onUpdate={this.handleContainerUpdate}
-        />
       </>
     );
   }
