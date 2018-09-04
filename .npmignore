@@ -2,6 +2,7 @@ lib/
 examples/
 node_modules/
 examples-dist/
+docs/
 .cache/
 .rpt2_cache/
 .editorconfig
