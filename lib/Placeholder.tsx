@@ -113,7 +113,7 @@ class Placeholder extends React.PureComponent<IProps, IState> {
 export default compose<IOwnProps, IOwnProps>(
   connectViewport(),
   mapProps(({ dimensions, scroll, ...props }) => ({
-    size: `${dimensions.width}x${dimensions.height}`,
+    size: `${dimensions.width}`,
     ...props,
   })),
 )(Placeholder);
