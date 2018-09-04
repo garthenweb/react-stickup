@@ -3,7 +3,6 @@ import {
   connectViewportScroll,
   IScroll,
   IRect,
-  IDimensions,
 } from 'react-viewport-utils';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
