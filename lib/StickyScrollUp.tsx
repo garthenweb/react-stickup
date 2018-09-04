@@ -48,7 +48,7 @@ const calcPositionStyles = (
 
     return {
       position: 'absolute',
-      top: Math.max(scroll.y - offsetTop + rectTop, 0),
+      top: Math.max(Math.floor(scroll.y - offsetTop + rect.top), 0),
     };
   }
 
@@ -57,7 +57,7 @@ const calcPositionStyles = (
   if (!isTopVisible && !isBottomVisible) {
     return {
       position: 'absolute',
-      top: scroll.y - offsetTop + rectTop,
+      top: Math.floor(scroll.y - offsetTop + rect.top),
     };
   }
 
