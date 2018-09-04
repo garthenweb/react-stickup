@@ -5,7 +5,7 @@ import mapProps from 'recompose/mapProps';
 import shallowEqual from 'recompose/shallowEqual';
 
 import { connect as connectStickyScrollUpProvider } from './StickyScrollUpProvider';
-import Placeholder, { IUpdateOptions } from './Placeholder';
+import Placeholder from './Placeholder';
 import StickyElement from './StickyElement';
 
 import { IStickyComponentProps, TRenderChildren } from './types';
@@ -115,14 +115,6 @@ class StickyScrollUp extends React.Component<IProps, IState> {
     );
   }
 
-  componentDidUpdate() {
-    if (this.props.updateStickyOffset) {
-      const { bottom } = this.stickyRef.current.getBoundingClientRect();
-      const offset = Math.max(bottom, 0);
-      this.props.updateStickyOffset(offset);
-    }
-  }
-
   getStickyStyles(stickyRect: IRect | null) {
     if (!stickyRect) {
       return {};
@@ -143,6 +135,11 @@ class StickyScrollUp extends React.Component<IProps, IState> {
   }
 
   handleUpdate = (stickyRect: IRect | null) => {
+    if (this.props.updateStickyOffset) {
+      const offset = Math.max(stickyRect.bottom, 0);
+      this.props.updateStickyOffset(offset);
+    }
+
     this.setState({
       stickyRect,
     });
