@@ -142,6 +142,21 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
+  getRenderArgs() {
+    const { children } = this.props;
+    const { stickyRect, containerRect } = this.state;
+    // in case children is not a function renderArgs will never be used
+    const willRenderAsAFunction = typeof children === 'function';
+    return {
+      isSticky: willRenderAsAFunction
+        ? this.isSticky(stickyRect, containerRect)
+        : false,
+      isDockedToBottom: willRenderAsAFunction
+        ? this.isDockedToBottom(stickyRect, containerRect)
+        : false,
+    };
+  }
+
   handlePlaceholderUpdate = (stickyRect: IRect | null) => {
     this.setState({
       stickyRect,
@@ -230,13 +245,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
             positionStyle={styles}
             disabled={disabled || isRecalculating}
             children={children}
-            renderArgs={() => ({
-              isSticky: this.isSticky(stickyRect, containerRect),
-              isDockedToBottom: this.isDockedToBottom(
-                stickyRect,
-                containerRect,
-              ),
-            })}
+            renderArgs={this.getRenderArgs()}
             {...stickyProps}
           />
         </Placeholder>

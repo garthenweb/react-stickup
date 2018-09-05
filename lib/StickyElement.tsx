@@ -4,7 +4,7 @@ import shallowEqual from 'recompose/shallowEqual';
 
 interface IProps<R> {
   disabled: boolean;
-  renderArgs?: () => R;
+  renderArgs?: R;
   children: TRenderChildren<R>;
   forwardRef?: React.RefObject<any>;
   style?: React.CSSProperties;
@@ -33,6 +33,10 @@ class StickyElement<R extends {}> extends React.Component<IProps<R>> {
     } = nextProps;
 
     if (!shallowEqual(positionStyle, nextPositionStyle)) {
+      return true;
+    }
+
+    if (!shallowEqual(renderArgs, nextRenderArgs)) {
       return true;
     }
 
@@ -68,7 +72,7 @@ class StickyElement<R extends {}> extends React.Component<IProps<R>> {
 
     return (
       <div ref={forwardRef} style={style} {...props}>
-        {typeof children === 'function' ? children(renderArgs()) : children}
+        {typeof children === 'function' ? children(renderArgs) : children}
       </div>
     );
   }
