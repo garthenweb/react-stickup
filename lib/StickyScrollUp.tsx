@@ -37,6 +37,7 @@ const calcPositionStyles = (
 ): React.CSSProperties => {
   const rectTop = Math.round(rect.top);
   if (scroll.isScrollingDown) {
+    // disable sticky mode above the top offset while scrolling down
     if (rectTop > 0 && scroll.y < offsetTop) {
       return {
         position: 'absolute',
@@ -44,6 +45,7 @@ const calcPositionStyles = (
       };
     }
 
+    // element is visible and scrolls down
     return {
       position: 'absolute',
       top: Math.max(Math.floor(scroll.y - offsetTop + rect.top), 0),
@@ -52,6 +54,7 @@ const calcPositionStyles = (
 
   const isTopVisible = rectTop >= 0;
   const isBottomVisible = rectTop + rect.height <= 0;
+  // element is visible and scrolls up
   if (!isTopVisible && !isBottomVisible) {
     return {
       position: 'absolute',
@@ -59,6 +62,7 @@ const calcPositionStyles = (
     };
   }
 
+  // disable sticky mode above the top offset while scrolling up
   if (scroll.y <= offsetTop) {
     return {
       position: 'absolute',
@@ -67,12 +71,22 @@ const calcPositionStyles = (
   }
 
   if (scroll.yDTurn === 0) {
+    // scroll direction changed from down to up and the element was not visible
+    if (isBottomVisible) {
+      return {
+        position: 'absolute',
+        top: scroll.yTurn - offsetTop - rect.height,
+      };
+    }
+
+    // scroll direction changed from down to up and the element was fully visible
     return {
       position: 'absolute',
-      top: scroll.yTurn - offsetTop - rect.height,
+      top: Math.max(Math.floor(scroll.y - offsetTop), 0),
     };
   }
 
+  // set sticky
   return {
     position: 'fixed',
     top: 0,
