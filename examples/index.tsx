@@ -12,12 +12,14 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   private container1: React.RefObject<any>;
   private container2: React.RefObject<any>;
   private container3: React.RefObject<any>;
+  private container4: React.RefObject<any>;
 
   constructor(props) {
     super(props);
     this.container1 = React.createRef();
     this.container2 = React.createRef();
     this.container3 = React.createRef();
+    this.container4 = React.createRef();
     this.state = {
       disableHeader: false,
     };
@@ -74,8 +76,15 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
           <Placeholder />
         </div>
 
+        <div ref={this.container4}>
+          <Sticky container={this.container4} defaultOffsetTop={100}>
+            <div className="sticky-inline">Sticky inline4</div>
+          </Sticky>
+          <Placeholder />
+        </div>
+
         <Sticky disableHardwareAcceleration>
-          <div className="sticky-inline">Sticky inline4</div>
+          <div className="sticky-inline">Sticky inline5</div>
         </Sticky>
 
         <Placeholder />

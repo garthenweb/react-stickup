@@ -10,4 +10,5 @@ export interface IStickyComponentProps<R> {
   disabled?: boolean;
   disableResizing?: boolean;
   stickyProps?: {};
+  defaultOffsetTop?: number;
 }

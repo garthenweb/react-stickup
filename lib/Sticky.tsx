@@ -37,6 +37,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       style: {},
     },
     disableHardwareAcceleration: false,
+    defaultOffsetTop: 0,
   };
 
   constructor(props: IProps) {
@@ -51,6 +52,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
     };
   }
 
+  get offsetTop() {
+    return this.props.stickyOffset + this.props.defaultOffsetTop;
+  }
+
   hasContainer = () => {
     return Boolean(this.props.container);
   };
@@ -61,14 +66,14 @@ class Sticky extends React.PureComponent<IProps, IState> {
     }
 
     if (!this.hasContainer()) {
-      return containerRect.top <= this.props.stickyOffset;
+      return containerRect.top <= this.offsetTop;
     }
 
-    if (containerRect.top > this.props.stickyOffset) {
+    if (containerRect.top > this.offsetTop) {
       return false;
     }
 
-    if (containerRect.bottom - this.props.stickyOffset < rect.height) {
+    if (containerRect.bottom - this.offsetTop < rect.height) {
       return false;
     }
 
@@ -84,7 +89,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       return false;
     }
 
-    if (containerRect.bottom - this.props.stickyOffset >= rect.height) {
+    if (containerRect.bottom - this.offsetTop >= rect.height) {
       return false;
     }
 
@@ -125,7 +130,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
     const styles = this.calcPositionStyles(rect, containerRect);
     const isSticky = this.isSticky(rect, containerRect);
-    const transform = `translateY(${isSticky ? this.props.stickyOffset : 0}px)`;
+    const transform = `translateY(${isSticky ? this.offsetTop : 0}px)`;
 
     if (this.props.disableHardwareAcceleration) {
       styles.transform = transform;

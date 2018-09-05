@@ -18,9 +18,7 @@ interface IViewportInjectedProps {
   scroll: IScroll;
 }
 
-interface IOwnProps extends IStickyComponentProps<{}> {
-  defaultOffsetTop?: number;
-}
+interface IOwnProps extends IStickyComponentProps<{}> {}
 
 interface IProps
   extends IViewportInjectedProps,
