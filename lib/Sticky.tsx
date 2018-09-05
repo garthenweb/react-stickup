@@ -175,46 +175,6 @@ class Sticky extends React.PureComponent<IProps, IState> {
     });
   };
 
-  renderSticky(
-    stickyRect: IRect | null,
-    containerRect: IRect | null,
-    { isRecalculating }: IUpdateOptions,
-  ) {
-    const { children, disabled, stickyProps } = this.props;
-    const styles = this.getStickyStyles(stickyRect, containerRect);
-
-    return (
-      <StickyElement<
-        TRenderChildren<{
-          isSticky: boolean;
-          isDockedToBottom: boolean;
-        }>
-      >
-        forwardRef={this.stickyRef}
-        positionStyle={styles}
-        disabled={disabled || isRecalculating}
-        children={children}
-        renderArgs={() => ({
-          isSticky: this.isSticky(stickyRect, containerRect),
-          isDockedToBottom: this.isDockedToBottom(stickyRect, containerRect),
-        })}
-        {...stickyProps}
-      />
-    );
-  }
-
-  renderContainerObserver = (
-    stickyRect: IRect | null,
-    options: IUpdateOptions,
-  ) => {
-    const node = this.props.container || this.placeholderRef;
-    return (
-      <ObserveBoundingClientRect node={node}>
-        {containerRect => this.renderSticky(stickyRect, containerRect, options)}
-      </ObserveBoundingClientRect>
-    );
-  };
-
   render() {
     const { children, disabled, stickyProps } = this.props;
     const { stickyRect, containerRect, isRecalculating } = this.state;
