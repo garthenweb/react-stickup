@@ -1,6 +1,6 @@
-import 'babel-polyfill';
 import * as React from 'react';
 import { render } from 'react-dom';
+import { ObserveViewport } from 'react-viewport-utils';
 
 import { Sticky, StickyScrollUp, StickyScrollUpProvider } from '../lib/index';
 
@@ -34,6 +34,13 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   render() {
     return (
       <>
+        <ObserveViewport disableDimensionsUpdates>
+          {({ scroll }) => (
+            <div className="scrollPosition">
+              {scroll.x.toFixed(2)}x{scroll.y.toFixed(2)}
+            </div>
+          )}
+        </ObserveViewport>
         <Placeholder />
         <StickyScrollUp
           disabled={this.state.disableHeader}

@@ -3,12 +3,12 @@ import { ViewportProvider } from 'react-viewport-utils';
 import wrapDisplayName from 'recompose/wrapDisplayName';
 
 export interface IInjectedProps {
-  stickyOffset: number;
+  stickyOffset: { top: number };
   updateStickyOffset: (offset: number) => void;
 }
 
 const StickyGroupContext = React.createContext({
-  stickyOffset: 0,
+  stickyOffset: { top: 0 },
   updateStickyOffset: (offset: number) => {},
 });
 
@@ -37,24 +37,27 @@ export const connect = () => <P extends object>(
 interface IProps {}
 
 interface IState {
-  stickyOffset: number;
+  stickyOffset: { top: number };
 }
 
 export default class StickyScrollUpProvider extends React.PureComponent<
   IProps,
   IState
 > {
+  stickyOffset = {
+    top: 0,
+  };
   constructor(props: IProps) {
     super(props);
     this.state = {
-      stickyOffset: 0,
+      stickyOffset: {
+        top: 0,
+      },
     };
   }
 
   updateStickyOffset = (stickyOffset: number) => {
-    this.setState({
-      stickyOffset,
-    });
+    this.stickyOffset.top = stickyOffset;
   };
 
   render() {
@@ -63,7 +66,7 @@ export default class StickyScrollUpProvider extends React.PureComponent<
         <StickyGroupContext.Provider
           value={{
             updateStickyOffset: this.updateStickyOffset,
-            stickyOffset: this.state.stickyOffset,
+            stickyOffset: this.stickyOffset,
           }}
         >
           {this.props.children}

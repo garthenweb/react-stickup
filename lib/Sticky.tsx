@@ -1,70 +1,71 @@
 import * as React from 'react';
-import { ObserveBoundingClientRect, IRect } from 'react-viewport-utils';
+import { ObserveViewport, IRect, IDimensions } from 'react-viewport-utils';
+import { shallowEqual } from 'recompose';
 
 import {
   connect as connectStickyScrollUpProvider,
   IInjectedProps as IStickyInjectedProps,
 } from './StickyScrollUpProvider';
-import Placeholder, { IUpdateOptions } from './Placeholder';
 import StickyElement from './StickyElement';
+import { TRenderChildren } from './types';
 
-import { TRenderChildren, IStickyComponentProps } from './types';
-
-interface IChildrenOptions {
-  isSticky: boolean;
-  isDockedToBottom: boolean;
-}
-
-interface IOwnProps extends IStickyComponentProps<IChildrenOptions> {
+interface IOwnProps {
   container?: React.RefObject<any>;
+  defaultOffsetTop?: number;
+  disableHardwareAcceleration?: boolean;
+  disableResizing?: boolean;
+  disabled?: boolean;
+  stickyProps?: {};
+  style?: React.CSSProperties;
 }
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}
 
 interface IState {
+  isSticky: boolean;
+  isDockedToBottom: boolean;
   isRecalculating: boolean;
-  stickyRect: IRect | null;
-  containerRect: IRect | null;
+  styles: React.CSSProperties;
+  stickyHeight: number | null;
+  stickyWidth: number | null;
+  clientSize: string | null;
 }
 
 class Sticky extends React.PureComponent<IProps, IState> {
-  private stickyRef: React.RefObject<any>;
-  private placeholderRef: React.RefObject<any>;
+  private stickyRef: React.RefObject<any> = React.createRef();
+  private placeholderRef: React.RefObject<any> = React.createRef();
+
   static defaultProps = {
-    disabled: false,
-    stickyOffset: 0,
-    stickyProps: {
-      style: {},
-    },
-    disableHardwareAcceleration: false,
+    stickyOffset: { top: 0 },
     defaultOffsetTop: 0,
+    disableResizing: false,
+    disableHardwareAcceleration: false,
+    style: {},
   };
 
-  constructor(props: IProps) {
-    super(props);
+  state: IState = {
+    isSticky: false,
+    isDockedToBottom: false,
+    styles: {},
+    isRecalculating: false,
+    stickyHeight: null,
+    stickyWidth: null,
+    clientSize: null,
+  };
 
-    this.stickyRef = React.createRef();
-    this.placeholderRef = React.createRef();
-    this.state = {
-      containerRect: null,
-      stickyRect: null,
-      isRecalculating: false,
-    };
+  get container() {
+    return this.props.container || this.placeholderRef;
   }
 
   get offsetTop() {
-    return this.props.stickyOffset + this.props.defaultOffsetTop;
+    return this.props.stickyOffset.top + this.props.defaultOffsetTop;
   }
 
   hasContainer = () => {
     return Boolean(this.props.container);
   };
 
-  isSticky = (rect: IRect | null, containerRect: IRect | null) => {
-    if (!rect || !containerRect) {
-      return false;
-    }
-
+  isSticky = (rect: IRect, containerRect: IRect) => {
     if (!this.hasContainer()) {
       return containerRect.top <= this.offsetTop;
     }
@@ -80,7 +81,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return true;
   };
 
-  isDockedToBottom = (rect: IRect | null, containerRect: IRect | null) => {
+  isDockedToBottom = (rect: IRect, containerRect: IRect) => {
     if (!rect || !containerRect) {
       return false;
     }
@@ -96,10 +97,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return true;
   };
 
-  calcPositionStyles = (
-    rect: IRect,
-    containerRect: IRect,
-  ): React.CSSProperties => {
+  calcPositionStyles(rect: IRect, containerRect: IRect): React.CSSProperties {
     if (this.isSticky(rect, containerRect)) {
       return {
         position: 'fixed',
@@ -118,16 +116,9 @@ class Sticky extends React.PureComponent<IProps, IState> {
       position: 'absolute',
       top: 0,
     };
-  };
+  }
 
-  getStickyStyles(
-    rect: IRect | null,
-    containerRect: IRect | null,
-  ): React.CSSProperties {
-    if (!rect || !containerRect) {
-      return {};
-    }
-
+  getStickyStyles(rect: IRect, containerRect: IRect): React.CSSProperties {
     const styles = this.calcPositionStyles(rect, containerRect);
     const isSticky = this.isSticky(rect, containerRect);
     const transform = `translateY(${isSticky ? this.offsetTop : 0}px)`;
@@ -142,59 +133,58 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
-  getRenderArgs() {
-    const { children } = this.props;
-    const { stickyRect, containerRect } = this.state;
+  handleViewportUpdate = ({ dimensions }: { dimensions: IDimensions }) => {
+    const stickyRect = this.stickyRef.current.getBoundingClientRect();
+    const containerRect = this.container.current.getBoundingClientRect();
+
     // in case children is not a function renderArgs will never be used
-    const willRenderAsAFunction = typeof children === 'function';
-    return {
-      isSticky: willRenderAsAFunction
-        ? this.isSticky(stickyRect, containerRect)
-        : false,
-      isDockedToBottom: willRenderAsAFunction
-        ? this.isDockedToBottom(stickyRect, containerRect)
-        : false,
-    };
-  }
+    const willRenderAsAFunction = typeof this.props.children === 'function';
 
-  handlePlaceholderUpdate = (stickyRect: IRect | null) => {
-    this.setState({
-      stickyRect,
-    });
-  };
+    const styles = this.getStickyStyles(stickyRect, containerRect);
+    const stateStyles = this.state.styles;
+    const isSticky = willRenderAsAFunction
+      ? this.isSticky(stickyRect, containerRect)
+      : false;
+    const isDockedToBottom = willRenderAsAFunction
+      ? this.isDockedToBottom(stickyRect, containerRect)
+      : false;
+    const nextClientSize = `${dimensions.width}`;
+    const shouldRecalculate =
+      !this.props.disableResizing && this.state.clientSize !== nextClientSize;
 
-  handleContainerUpdate = (containerRect: IRect | null) => {
-    this.setState({
-      containerRect,
-    });
-  };
-
-  handleRecalculation = (isRecalculating: boolean) => {
-    this.setState({
-      isRecalculating,
-    });
+    this.setState(
+      {
+        isSticky,
+        isDockedToBottom,
+        styles: shallowEqual(styles, stateStyles) ? stateStyles : styles,
+        stickyHeight: stickyRect.height,
+        stickyWidth: stickyRect.width,
+        clientSize: nextClientSize,
+        isRecalculating: shouldRecalculate,
+      },
+      () => {
+        if (shouldRecalculate) {
+          this.handleViewportUpdate({ dimensions });
+        }
+      },
+    );
   };
 
   render() {
-    const { children, disabled, stickyProps } = this.props;
-    const { stickyRect, containerRect, isRecalculating } = this.state;
-    const styles = this.getStickyStyles(stickyRect, containerRect);
+    const { children, disabled, stickyProps, style } = this.props;
+    const { styles, isRecalculating, stickyHeight, stickyWidth } = this.state;
+    const isActive = !disabled && !isRecalculating;
+    const containerStyle: React.CSSProperties = isActive
+      ? {
+          position: 'relative',
+          height: stickyHeight,
+          width: stickyWidth,
+          ...style,
+        }
+      : null;
     return (
       <>
-        <ObserveBoundingClientRect
-          node={this.props.container || this.placeholderRef}
-          onUpdate={this.handleContainerUpdate}
-        />
-        <Placeholder
-          forwardRef={this.placeholderRef}
-          node={this.stickyRef}
-          style={this.props.style}
-          className={this.props.className}
-          disabled={this.props.disabled}
-          disableResizing={this.props.disableResizing}
-          onUpdate={this.handlePlaceholderUpdate}
-          onRecalculationChange={this.handleRecalculation}
-        >
+        <div ref={this.placeholderRef} style={containerStyle}>
           <StickyElement<
             TRenderChildren<{
               isSticky: boolean;
@@ -203,12 +193,16 @@ class Sticky extends React.PureComponent<IProps, IState> {
           >
             forwardRef={this.stickyRef}
             positionStyle={styles}
-            disabled={disabled || isRecalculating}
+            disabled={!isActive}
             children={children}
-            renderArgs={this.getRenderArgs()}
+            renderArgs={{
+              isSticky: this.state.isSticky,
+              isDockedToBottom: this.state.isDockedToBottom,
+            }}
             {...stickyProps}
           />
-        </Placeholder>
+        </div>
+        <ObserveViewport onUpdate={this.handleViewportUpdate} />
       </>
     );
   }
