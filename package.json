@@ -11,7 +11,7 @@
     "compile": "tsc --project ./tsconfig.json",
     "test": "jest lib",
     "fmt": "prettier --write \"lib/*.{ts,tsx}\"  \"examples/*.{ts,tsx}\"",
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "postversion": "git push && git push --tags"
   },
   "repository": {
