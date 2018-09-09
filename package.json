@@ -6,7 +6,7 @@
   "typings": "./dist/index.d.ts",
   "scripts": {
     "start": "rm -rf ./.cache && parcel ./examples/index.html --out-dir='examples-dist'",
-    "compile:docs": "rm -rf docs && parcel build ./examples/index.html --out-dir='docs' --public-url=\"https://garthenweb.github.io/react-stickup/\"",
+    "compile:docs": "rm -rf docs && parcel build ./examples/index.html ./examples/legacy-browsers.html --out-dir='docs' --public-url=\"https://garthenweb.github.io/react-stickup/\"",
     "precompile": "rm -rf dist",
     "compile": "tsc --project ./tsconfig.json",
     "test": "jest lib",
@@ -34,10 +34,9 @@
     "@types/react": "^16.4.11",
     "@types/react-dom": "^16.0.7",
     "@types/recompose": "^0.26.4",
-    "babel-polyfill": "^6.26.0",
     "concurrently": "^4.0.0",
     "jest": "^23.5.0",
-    "parcel-bundler": "1.9.4",
+    "parcel-bundler": "1.9.7",
     "prettier": "^1.14.2",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
@@ -45,6 +44,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.0.0",
     "react-viewport-utils": "^0.3.0",
     "recompose": "^0.30.0"
   },
