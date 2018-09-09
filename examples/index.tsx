@@ -43,16 +43,17 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
         </ObserveViewport>
         <Placeholder />
         <StickyScrollUp
+          className="header-container"
           disabled={this.state.disableHeader}
-          defaultOffsetTop={505}
+          defaultOffsetTop={1000}
         >
           <div className="header">Header</div>
         </StickyScrollUp>
         <Placeholder />
 
         <div ref={this.container1}>
-          <Sticky container={this.container1} style={{ marginTop: '100px' }}>
-            <div className="sticky-inline">Sticky inline1</div>
+          <Sticky container={this.container1} style={{ marginTop: 100 }}>
+            <div className="sticky-inline">style: marginTop: 100</div>
           </Sticky>
           <Placeholder />
         </div>
@@ -63,8 +64,8 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
             stickyProps={{ className: 'sticky-placeholder' }}
           >
             {({ isSticky, isDockedToBottom }) => (
-              <div className="sticky-inline">
-                Sticky inline2
+              <div className="sticky-inline sticky-inline-odd">
+                stickyProps: paddingBottom: 100
                 <br />
                 isSticky: {isSticky ? 'true' : 'false'}
                 <br />
@@ -78,20 +79,20 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
 
         <div className="wrapper" ref={this.container3}>
           <Sticky container={this.container3}>
-            <div className="sticky-inline">Sticky inline3</div>
+            <div className="sticky-inline">default props</div>
           </Sticky>
           <Placeholder />
         </div>
 
         <div ref={this.container4}>
           <Sticky container={this.container4} defaultOffsetTop={100}>
-            <div className="sticky-inline">Sticky inline4</div>
+            <div className="sticky-inline sticky-inline-odd">defaultOffsetTop: 100</div>
           </Sticky>
           <Placeholder />
         </div>
 
         <Sticky disableHardwareAcceleration>
-          <div className="sticky-inline">Sticky inline5</div>
+          <div className="sticky-inline">disableHardwareAcceleration: true</div>
         </Sticky>
 
         <Placeholder />

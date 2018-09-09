@@ -25,10 +25,6 @@ interface IState {
 
 class StickyPlaceholder extends React.PureComponent<IProps, IState> {
   static defaultProps = {
-    stickyOffset: { top: 0 },
-    defaultOffsetTop: 0,
-    disableResizing: false,
-    disableHardwareAcceleration: false,
     style: {},
   };
 
