@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import { ObserveViewport } from 'react-viewport-utils';
 
-import { Sticky, StickyScrollUp, StickyScrollUpProvider } from '../lib/index';
+import { Sticky, StickyScrollUp, StickyProvider } from '../lib/index';
 
 import './styles.css';
 
@@ -106,13 +106,13 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
 }
 
 render(
-  <StickyScrollUpProvider>
+  <StickyProvider>
     <main role="main">
       <Example />
       <Placeholder />
       <Placeholder />
       <Placeholder />
     </main>
-  </StickyScrollUpProvider>,
+  </StickyProvider>,
   document.getElementById('root'),
 );

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ObserveViewport, IRect, IScroll } from 'react-viewport-utils';
 import { shallowEqual } from 'recompose';
 
-import { connect as connectStickyProvider } from './StickyScrollUpProvider';
+import { connect as connectStickyProvider } from './StickyProvider';
 import StickyElement from './StickyElement';
 import StickyPlaceholder from './StickyPlaceholder';
 import {
