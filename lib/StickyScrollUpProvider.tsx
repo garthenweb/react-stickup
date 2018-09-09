@@ -1,11 +1,7 @@
 import * as React from 'react';
 import { ViewportProvider } from 'react-viewport-utils';
 import wrapDisplayName from 'recompose/wrapDisplayName';
-
-export interface IInjectedProps {
-  stickyOffset: { top: number };
-  updateStickyOffset: (offset: number) => void;
-}
+import { IStickyInjectedProps } from './types';
 
 const StickyGroupContext = React.createContext({
   stickyOffset: { top: 0 },
@@ -13,7 +9,7 @@ const StickyGroupContext = React.createContext({
 });
 
 export const connect = () => <P extends object>(
-  WrappedComponent: React.ComponentType<P & IInjectedProps>,
+  WrappedComponent: React.ComponentType<P & IStickyInjectedProps>,
 ) => {
   const ConnectedComponent: React.SFC<P> = props => (
     <StickyGroupContext.Consumer>
@@ -29,7 +25,7 @@ export const connect = () => <P extends object>(
 
   ConnectedComponent.displayName = wrapDisplayName(
     WrappedComponent,
-    'connectStickyScrollUp',
+    'connectSticky',
   );
   return ConnectedComponent;
 };

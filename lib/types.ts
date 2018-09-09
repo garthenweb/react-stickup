@@ -2,13 +2,17 @@ export type TRenderChildren<O> =
   | React.ReactNode
   | ((options: O) => React.ReactNode);
 
-export interface IStickyComponentProps<R> {
-  children?: TRenderChildren<R>;
-  className?: string;
-  style?: React.CSSProperties;
-  disableHardwareAcceleration?: boolean;
-  disabled?: boolean;
-  disableResizing?: boolean;
-  stickyProps?: {};
+export interface IStickyComponentProps {
   defaultOffsetTop?: number;
+  disableHardwareAcceleration?: boolean;
+  disableResizing?: boolean;
+  disabled?: boolean;
+  stickyProps?: {};
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+export interface IStickyInjectedProps {
+  stickyOffset: { top: number };
+  updateStickyOffset: (offset: number) => void;
 }

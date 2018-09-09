@@ -1,37 +1,25 @@
 import * as React from 'react';
-import {
-  ObserveViewport,
-  IRect,
-  IScroll,
-  IDimensions,
-} from 'react-viewport-utils';
-import compose from 'recompose/compose';
-
-import { connect as connectStickyScrollUpProvider } from './StickyScrollUpProvider';
-import StickyElement from './StickyElement';
-import { TRenderChildren } from './types';
+import { ObserveViewport, IRect, IScroll } from 'react-viewport-utils';
 import { shallowEqual } from 'recompose';
 
-interface IOwnProps {
-  defaultOffsetTop?: number;
-  disableHardwareAcceleration?: boolean;
-  disableResizing?: boolean;
-  disabled?: boolean;
-  stickyProps?: {};
-  style?: React.CSSProperties;
+import { connect as connectStickyProvider } from './StickyScrollUpProvider';
+import StickyElement from './StickyElement';
+import StickyPlaceholder from './StickyPlaceholder';
+import {
+  TRenderChildren,
+  IStickyComponentProps,
+  IStickyInjectedProps,
+} from './types';
+
+interface IOwnProps extends IStickyComponentProps {
+  children?: TRenderChildren<undefined>;
 }
 
-interface IProps extends IOwnProps {
-  updateStickyOffset: (offset: number) => void;
-}
+interface IProps extends IOwnProps, IStickyInjectedProps {}
 
 interface IState {
-  isRecalculating: boolean;
   styles: React.CSSProperties;
-  stickyHeight: number | null;
-  stickyWidth: number | null;
   stickyOffset: number | null;
-  clientSize: string | null;
 }
 
 const calcPositionStyles = (
@@ -109,11 +97,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
   state: IState = {
     styles: {},
-    isRecalculating: false,
-    stickyHeight: null,
-    stickyWidth: null,
     stickyOffset: null,
-    clientSize: null,
   };
 
   getStickyStyles(stickyRect: IRect, scroll: IScroll) {
@@ -129,13 +113,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
-  handleViewportUpdate = ({
-    scroll,
-    dimensions,
-  }: {
-    scroll: IScroll;
-    dimensions: IDimensions;
-  }) => {
+  handleViewportUpdate = ({ scroll }: { scroll: IScroll }) => {
     const stickyRect = this.stickyRef.current.getBoundingClientRect();
     const nextOffset = Math.max(stickyRect.bottom, 0);
     if (
@@ -147,56 +125,48 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
     const styles = this.getStickyStyles(stickyRect, scroll);
     const stateStyles = this.state.styles;
-    const nextClientSize = `${dimensions.width}`;
-    const shouldRecalculate =
-      !this.props.disableResizing && this.state.clientSize !== nextClientSize;
 
-    this.setState(
-      {
-        styles: shallowEqual(styles, stateStyles) ? stateStyles : styles,
-        stickyWidth: stickyRect.width,
-        stickyHeight: stickyRect.height,
-        stickyOffset: nextOffset,
-        clientSize: nextClientSize,
-        isRecalculating: shouldRecalculate,
-      },
-      () => {
-        if (shouldRecalculate) {
-          this.handleViewportUpdate({ scroll, dimensions });
-        }
-      },
-    );
+    this.setState({
+      styles: shallowEqual(styles, stateStyles) ? stateStyles : styles,
+      stickyOffset: nextOffset,
+    });
   };
 
   render() {
-    const { stickyProps, children, disabled, style } = this.props;
-    const { styles, stickyHeight, stickyWidth, isRecalculating } = this.state;
-    const isActive = !disabled && !isRecalculating;
-    const containerStyle: React.CSSProperties = isActive
-      ? {
-          position: 'relative',
-          height: stickyHeight,
-          width: stickyWidth,
-          ...style,
-        }
-      : null;
+    const {
+      children,
+      disabled,
+      disableResizing,
+      stickyProps,
+      style,
+      className,
+    } = this.props;
     return (
       <>
-        <div style={containerStyle}>
-          <StickyElement<TRenderChildren<undefined>>
-            forwardRef={this.stickyRef}
-            positionStyle={styles}
-            disabled={!isActive}
-            children={children}
-            {...stickyProps}
-          />
-        </div>
-        <ObserveViewport onUpdate={this.handleViewportUpdate} />
+        <StickyPlaceholder
+          className={className}
+          style={style}
+          disabled={disabled}
+          stickyRef={this.stickyRef}
+          disableResizing={disableResizing}
+        >
+          {({ isRecalculating }) => (
+            <StickyElement<TRenderChildren<undefined>>
+              forwardRef={this.stickyRef}
+              positionStyle={this.state.styles}
+              disabled={disabled || isRecalculating}
+              children={children}
+              {...stickyProps}
+            />
+          )}
+        </StickyPlaceholder>
+        <ObserveViewport
+          disableDimensionsUpdates
+          onUpdate={this.handleViewportUpdate}
+        />
       </>
     );
   }
 }
 
-export default compose<IOwnProps, IOwnProps>(connectStickyScrollUpProvider())(
-  StickyScrollUp,
-);
+export default connectStickyProvider()<IOwnProps>(StickyScrollUp);
