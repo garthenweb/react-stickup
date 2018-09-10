@@ -30,12 +30,13 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@babel/polyfill": "^7.0.0",
     "@types/node": "^10.9.2",
     "@types/react": "^16.4.11",
     "@types/react-dom": "^16.0.7",
     "@types/recompose": "^0.26.4",
     "concurrently": "^4.0.0",
-    "jest": "^23.5.0",
+    "jest": "^23.6.0",
     "parcel-bundler": "1.9.7",
     "prettier": "^1.14.2",
     "react": "^16.4.2",
@@ -44,8 +45,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
-    "react-viewport-utils": "^0.3.0",
+    "react-viewport-utils": "^0.3.3",
     "recompose": "^0.30.0"
   },
   "peerDependencies": {
