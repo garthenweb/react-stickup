@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ViewportProvider } from 'react-viewport-utils';
-import wrapDisplayName from 'recompose/wrapDisplayName';
+import { wrapDisplayName } from 'recompose';
 import { IStickyInjectedProps } from './types';
 
 const StickyGroupContext = React.createContext({
