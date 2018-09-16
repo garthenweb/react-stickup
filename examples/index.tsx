@@ -86,7 +86,9 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
 
         <div ref={this.container4}>
           <Sticky container={this.container4} defaultOffsetTop={100}>
-            <div className="sticky-inline sticky-inline-odd">defaultOffsetTop: 100</div>
+            <div className="sticky-inline sticky-inline-odd">
+              defaultOffsetTop: 100
+            </div>
           </Sticky>
           <Placeholder />
         </div>
