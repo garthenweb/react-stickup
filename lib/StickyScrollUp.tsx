@@ -132,15 +132,21 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     });
   };
 
+  renderSticky = ({ isRecalculating }) => {
+    const { disabled, children, stickyProps } = this.props;
+    return (
+      <StickyElement<TRenderChildren<undefined>>
+        forwardRef={this.stickyRef}
+        positionStyle={this.state.styles}
+        disabled={disabled || isRecalculating}
+        children={children}
+        {...stickyProps}
+      />
+    );
+  };
+
   render() {
-    const {
-      children,
-      disabled,
-      disableResizing,
-      stickyProps,
-      style,
-      className,
-    } = this.props;
+    const { disabled, disableResizing, style, className } = this.props;
     return (
       <>
         <StickyPlaceholder
@@ -150,15 +156,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
           stickyRef={this.stickyRef}
           disableResizing={disableResizing}
         >
-          {({ isRecalculating }) => (
-            <StickyElement<TRenderChildren<undefined>>
-              forwardRef={this.stickyRef}
-              positionStyle={this.state.styles}
-              disabled={disabled || isRecalculating}
-              children={children}
-              {...stickyProps}
-            />
-          )}
+          {this.renderSticky}
         </StickyPlaceholder>
         <ObserveViewport
           disableDimensionsUpdates

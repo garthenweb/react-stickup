@@ -148,15 +148,30 @@ class Sticky extends React.PureComponent<IProps, IState> {
     });
   };
 
+  renderSticky = ({ isRecalculating }) => {
+    const { children, disabled, stickyProps } = this.props;
+    return (
+      <StickyElement<
+        TRenderChildren<{
+          isSticky: boolean;
+          isDockedToBottom: boolean;
+        }>
+      >
+        forwardRef={this.stickyRef}
+        positionStyle={this.state.styles}
+        disabled={disabled || isRecalculating}
+        children={children}
+        renderArgs={{
+          isSticky: this.state.isSticky,
+          isDockedToBottom: this.state.isDockedToBottom,
+        }}
+        {...stickyProps}
+      />
+    );
+  };
+
   render() {
-    const {
-      children,
-      disabled,
-      disableResizing,
-      stickyProps,
-      style,
-      className,
-    } = this.props;
+    const { disabled, disableResizing, style, className } = this.props;
     return (
       <>
         <StickyPlaceholder
@@ -167,24 +182,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
           stickyRef={this.stickyRef}
           disableResizing={disableResizing}
         >
-          {({ isRecalculating }) => (
-            <StickyElement<
-              TRenderChildren<{
-                isSticky: boolean;
-                isDockedToBottom: boolean;
-              }>
-            >
-              forwardRef={this.stickyRef}
-              positionStyle={this.state.styles}
-              disabled={disabled || isRecalculating}
-              children={children}
-              renderArgs={{
-                isSticky: this.state.isSticky,
-                isDockedToBottom: this.state.isDockedToBottom,
-              }}
-              {...stickyProps}
-            />
-          )}
+          {this.renderSticky}
         </StickyPlaceholder>
         <ObserveViewport
           disableDimensionsUpdates

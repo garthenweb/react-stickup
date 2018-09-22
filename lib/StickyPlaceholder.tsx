@@ -23,7 +23,7 @@ interface IState {
   clientSize: string | null;
 }
 
-class StickyPlaceholder extends React.PureComponent<IProps, IState> {
+class StickyPlaceholder extends React.Component<IProps, IState> {
   static defaultProps = {
     style: {},
   };
@@ -43,7 +43,18 @@ class StickyPlaceholder extends React.PureComponent<IProps, IState> {
     }
   }
 
-  static getDerivedStateFromProps(props: IProps, state: IState): IState {
+  static getDerivedStateFromProps(props: IProps, state: IState): IState | null {
+    const nextClientSize = `${props.dimensions.width}`;
+    if (state.isRecalculating) {
+      const stickyRect = props.stickyRef.current.getBoundingClientRect();
+      return {
+        stickyHeight: stickyRect.height,
+        stickyWidth: stickyRect.width,
+        clientSize: nextClientSize,
+        isRecalculating: false,
+      };
+    }
+
     if (!props.stickyRef.current) {
       return {
         ...state,
@@ -51,17 +62,17 @@ class StickyPlaceholder extends React.PureComponent<IProps, IState> {
       };
     }
 
-    const stickyRect = props.stickyRef.current.getBoundingClientRect();
-    const nextClientSize = `${props.dimensions.width}`;
-    const shouldRecalculate =
+    const triggerRecalculation =
       !props.disableResizing && state.clientSize !== nextClientSize;
 
-    return {
-      stickyHeight: stickyRect.height,
-      stickyWidth: stickyRect.width,
-      clientSize: nextClientSize,
-      isRecalculating: shouldRecalculate,
-    };
+    if (triggerRecalculation) {
+      return {
+        ...state,
+        isRecalculating: true,
+      };
+    }
+
+    return null;
   }
 
   render() {
