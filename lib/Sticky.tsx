@@ -27,6 +27,11 @@ interface IState {
   styles: React.CSSProperties;
 }
 
+interface ILayoutSnapshot {
+  stickyRect: IRect;
+  containerRect: IRect;
+}
+
 class Sticky extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any> = React.createRef();
   private placeholderRef: React.RefObject<any> = React.createRef();
@@ -125,10 +130,19 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
-  handleScrollUpdate = () => {
+  recalculateLayoutBeforeUpdate = (): ILayoutSnapshot => {
     const stickyRect = this.stickyRef.current.getBoundingClientRect();
     const containerRect = this.container.current.getBoundingClientRect();
+    return {
+      stickyRect,
+      containerRect,
+    };
+  };
 
+  handleScrollUpdate = (
+    _: any,
+    { stickyRect, containerRect }: ILayoutSnapshot,
+  ) => {
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
 
@@ -187,6 +201,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
         <ObserveViewport
           disableDimensionsUpdates
           onUpdate={this.handleScrollUpdate}
+          recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}
         />
       </>
     );

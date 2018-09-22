@@ -113,8 +113,14 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
-  handleViewportUpdate = ({ scroll }: { scroll: IScroll }) => {
-    const stickyRect = this.stickyRef.current.getBoundingClientRect();
+  recalculateLayoutBeforeUpdate = (): IRect => {
+    return this.stickyRef.current.getBoundingClientRect();
+  };
+
+  handleViewportUpdate = (
+    { scroll }: { scroll: IScroll },
+    stickyRect: IRect,
+  ) => {
     const nextOffset = Math.max(stickyRect.bottom, 0);
     if (
       this.props.updateStickyOffset &&
@@ -161,6 +167,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
         <ObserveViewport
           disableDimensionsUpdates
           onUpdate={this.handleViewportUpdate}
+          recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}
         />
       </>
     );
