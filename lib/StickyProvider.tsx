@@ -4,8 +4,8 @@ import { wrapDisplayName } from 'recompose';
 import { IStickyInjectedProps } from './types';
 
 const StickyGroupContext = React.createContext({
-  stickyOffset: { top: 0 },
-  updateStickyOffset: (offset: number) => {},
+  stickyOffset: { top: 0, height: 0 },
+  updateStickyOffset: (offset: number, height: number) => {},
 });
 
 export const connect = () => <P extends object>(
@@ -33,10 +33,12 @@ export const connect = () => <P extends object>(
 export default class StickyScrollUpProvider extends React.PureComponent {
   stickyOffset = {
     top: 0,
+    height: 0,
   };
 
-  updateStickyOffset = (stickyOffset: number) => {
+  updateStickyOffset = (stickyOffset: number, height: number) => {
     this.stickyOffset.top = stickyOffset;
+    this.stickyOffset.height = height;
   };
 
   render() {

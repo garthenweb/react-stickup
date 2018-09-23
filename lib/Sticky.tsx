@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ObserveViewport, IRect } from 'react-viewport-utils';
+import { ObserveViewport, IRect, IScroll } from 'react-viewport-utils';
 import { shallowEqual } from 'recompose';
 
 import { connect as connectStickyProvider } from './StickyProvider';
@@ -37,7 +37,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
   private placeholderRef: React.RefObject<any> = React.createRef();
 
   static defaultProps = {
-    stickyOffset: { top: 0 },
+    stickyOffset: { top: 0, height: 0 },
     defaultOffsetTop: 0,
     disableResizing: false,
     disableHardwareAcceleration: false,
@@ -94,18 +94,33 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return true;
   };
 
-  calcPositionStyles(rect: IRect, containerRect: IRect): React.CSSProperties {
-    if (this.isSticky(rect, containerRect)) {
+  calcPositionStyles(
+    rectSticky: IRect,
+    containerRect: IRect,
+    scroll: IScroll,
+  ): React.CSSProperties {
+    if (this.isSticky(rectSticky, containerRect)) {
+      const stickyOffset = Math.round(this.props.stickyOffset.top);
+      const stickyHeight = this.props.stickyOffset.height;
+      const headIsFlexible = stickyOffset > 0 && stickyOffset < stickyHeight;
+      if (headIsFlexible) {
+        const relYTurn = scroll.yTurn - scroll.y - containerRect.top;
+        return {
+          position: 'absolute',
+          top: relYTurn + this.offsetTop + scroll.yDTurn,
+        };
+      }
+
       return {
         position: 'fixed',
-        top: 0,
+        top: this.offsetTop,
       };
     }
 
-    if (this.isDockedToBottom(rect, containerRect)) {
+    if (this.isDockedToBottom(rectSticky, containerRect)) {
       return {
         position: 'absolute',
-        top: containerRect.height - rect.height,
+        top: containerRect.height - rectSticky.height,
       };
     }
 
@@ -115,19 +130,12 @@ class Sticky extends React.PureComponent<IProps, IState> {
     };
   }
 
-  getStickyStyles(rect: IRect, containerRect: IRect): React.CSSProperties {
-    const styles = this.calcPositionStyles(rect, containerRect);
-    const isSticky = this.isSticky(rect, containerRect);
-    const transform = `translateY(${isSticky ? this.offsetTop : 0}px)`;
-
-    if (this.props.disableHardwareAcceleration) {
-      styles.transform = transform;
-    } else {
-      styles.transform = `${transform} translateZ(0)`;
-      styles.willChange = 'position, top, transform';
-    }
-
-    return styles;
+  getStickyStyles(
+    rect: IRect,
+    containerRect: IRect,
+    scroll: IScroll,
+  ): React.CSSProperties {
+    return this.calcPositionStyles(rect, containerRect, scroll);
   }
 
   recalculateLayoutBeforeUpdate = (): ILayoutSnapshot => {
@@ -140,13 +148,13 @@ class Sticky extends React.PureComponent<IProps, IState> {
   };
 
   handleScrollUpdate = (
-    _: any,
+    { scroll }: { scroll: IScroll },
     { stickyRect, containerRect }: ILayoutSnapshot,
   ) => {
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
 
-    const styles = this.getStickyStyles(stickyRect, containerRect);
+    const styles = this.getStickyStyles(stickyRect, containerRect, scroll);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqual(styles, stateStyles);
     const isSticky = willRenderAsAFunction

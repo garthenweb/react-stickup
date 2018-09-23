@@ -20,6 +20,7 @@ interface IProps extends IOwnProps, IStickyInjectedProps {}
 interface IState {
   styles: React.CSSProperties;
   stickyOffset: number | null;
+  stickyOffsetHeight: number;
 }
 
 const calcPositionStyles = (
@@ -98,6 +99,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
   state: IState = {
     styles: {},
     stickyOffset: null,
+    stickyOffsetHeight: 0,
   };
 
   componentDidUpdate(prevProps: IProps, prevState: IState) {
@@ -107,6 +109,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     ) {
       this.props.updateStickyOffset(
         this.props.disabled ? 0 : this.state.stickyOffset,
+        this.state.stickyOffsetHeight,
       );
     }
   }
@@ -133,22 +136,26 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     stickyRect: IRect,
   ) => {
     const nextOffset = Math.max(stickyRect.bottom, 0);
+    const nextOffsetHeight = stickyRect.height;
     const offsetDidChange = this.state.stickyOffset !== nextOffset;
+    const offsetHeightDidChange =
+      this.state.stickyOffsetHeight !== nextOffsetHeight;
     if (this.props.updateStickyOffset && offsetDidChange) {
-      this.props.updateStickyOffset(nextOffset);
+      this.props.updateStickyOffset(nextOffset, nextOffsetHeight);
     }
 
     const styles = this.getStickyStyles(stickyRect, scroll);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqual(styles, stateStyles);
 
-    if (!stylesDidChange && !offsetDidChange) {
+    if (!stylesDidChange && !offsetDidChange && !offsetHeightDidChange) {
       return;
     }
 
     this.setState({
       styles: stylesDidChange ? styles : stateStyles,
       stickyOffset: nextOffset,
+      stickyOffsetHeight: nextOffsetHeight,
     });
   };
 

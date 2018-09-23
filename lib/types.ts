@@ -13,6 +13,6 @@ export interface IStickyComponentProps {
 }
 
 export interface IStickyInjectedProps {
-  stickyOffset: { top: number };
-  updateStickyOffset: (offset: number) => void;
+  stickyOffset: { top: number; height: number };
+  updateStickyOffset: (offset: number, height: number) => void;
 }
