@@ -48,7 +48,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "react-viewport-utils": "^1.1.0",
+    "react-viewport-utils": "^1.2.0",
     "recompose": "^0.30.0"
   },
   "peerDependencies": {
