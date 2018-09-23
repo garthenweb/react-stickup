@@ -152,7 +152,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     });
   };
 
-  renderSticky = ({ isRecalculating }) => {
+  renderSticky = ({ isRecalculating }: { isRecalculating: boolean }) => {
     const { disabled, children, stickyProps } = this.props;
     return (
       <StickyElement<TRenderChildren<undefined>>

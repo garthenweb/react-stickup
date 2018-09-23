@@ -170,7 +170,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     });
   };
 
-  renderSticky = ({ isRecalculating }) => {
+  renderSticky = ({ isRecalculating }: { isRecalculating: boolean }) => {
     const { children, disabled, stickyProps } = this.props;
     return (
       <StickyElement<
