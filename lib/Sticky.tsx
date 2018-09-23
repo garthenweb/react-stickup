@@ -148,17 +148,25 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
     const styles = this.getStickyStyles(stickyRect, containerRect);
     const stateStyles = this.state.styles;
+    const stylesDidChange = !shallowEqual(styles, stateStyles);
     const isSticky = willRenderAsAFunction
       ? this.isSticky(stickyRect, containerRect)
       : false;
+    const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottom = willRenderAsAFunction
       ? this.isDockedToBottom(stickyRect, containerRect)
       : false;
+    const isDockedToBottomDidChange =
+      this.state.isDockedToBottom !== isDockedToBottom;
+
+    if (!stylesDidChange && !isStickyDidChange && !isDockedToBottomDidChange) {
+      return;
+    }
 
     this.setState({
       isSticky,
       isDockedToBottom,
-      styles: shallowEqual(styles, stateStyles) ? stateStyles : styles,
+      styles: stylesDidChange ? styles : stateStyles,
     });
   };
 

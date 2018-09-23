@@ -133,18 +133,21 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     stickyRect: IRect,
   ) => {
     const nextOffset = Math.max(stickyRect.bottom, 0);
-    if (
-      this.props.updateStickyOffset &&
-      this.state.stickyOffset !== nextOffset
-    ) {
+    const offsetDidChange = this.state.stickyOffset !== nextOffset;
+    if (this.props.updateStickyOffset && offsetDidChange) {
       this.props.updateStickyOffset(nextOffset);
     }
 
     const styles = this.getStickyStyles(stickyRect, scroll);
     const stateStyles = this.state.styles;
+    const stylesDidChange = !shallowEqual(styles, stateStyles);
+
+    if (!stylesDidChange && !offsetDidChange) {
+      return;
+    }
 
     this.setState({
-      styles: shallowEqual(styles, stateStyles) ? stateStyles : styles,
+      styles: stylesDidChange ? styles : stateStyles,
       stickyOffset: nextOffset,
     });
   };
