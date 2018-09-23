@@ -30,27 +30,10 @@ export const connect = () => <P extends object>(
   return ConnectedComponent;
 };
 
-interface IProps {}
-
-interface IState {
-  stickyOffset: { top: number };
-}
-
-export default class StickyScrollUpProvider extends React.PureComponent<
-  IProps,
-  IState
-> {
+export default class StickyScrollUpProvider extends React.PureComponent {
   stickyOffset = {
     top: 0,
   };
-  constructor(props: IProps) {
-    super(props);
-    this.state = {
-      stickyOffset: {
-        top: 0,
-      },
-    };
-  }
 
   updateStickyOffset = (stickyOffset: number) => {
     this.stickyOffset.top = stickyOffset;
