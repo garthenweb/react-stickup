@@ -44,7 +44,8 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
   }
 
   static getDerivedStateFromProps(props: IProps, state: IState): IState | null {
-    const nextClientSize = `${props.dimensions.width}`;
+    const { width, clientWidth } = props.dimensions;
+    const nextClientSize = `width:${width},clientWidth:${clientWidth}`;
     if (state.isRecalculating) {
       const stickyRect = props.stickyRef.current.getBoundingClientRect();
       return {
