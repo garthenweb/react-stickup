@@ -100,6 +100,17 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     stickyOffset: null,
   };
 
+  componentDidUpdate(prevProps: IProps, prevState: IState) {
+    if (
+      this.props.updateStickyOffset &&
+      prevProps.disabled !== this.props.disabled
+    ) {
+      this.props.updateStickyOffset(
+        this.props.disabled ? 0 : this.state.stickyOffset,
+      );
+    }
+  }
+
   getStickyStyles(stickyRect: IRect, scroll: IScroll) {
     const styles = calcPositionStyles(stickyRect, scroll, {
       offsetTop: this.props.defaultOffsetTop,
@@ -165,6 +176,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
           {this.renderSticky}
         </StickyPlaceholder>
         <ObserveViewport
+          disableScrollUpdates={disabled}
           disableDimensionsUpdates
           onUpdate={this.handleViewportUpdate}
           recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}

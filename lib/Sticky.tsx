@@ -199,6 +199,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
           {this.renderSticky}
         </StickyPlaceholder>
         <ObserveViewport
+          disableScrollUpdates={disabled}
           disableDimensionsUpdates
           onUpdate={this.handleScrollUpdate}
           recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}
