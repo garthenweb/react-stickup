@@ -118,7 +118,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
     if (!this.props.disableHardwareAcceleration) {
       styles.transform = `translateZ(0)`;
-      styles.willChange = 'position, top, transform';
+      styles.willChange = 'position, top';
     }
 
     return styles;
