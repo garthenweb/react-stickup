@@ -135,7 +135,14 @@ class Sticky extends React.PureComponent<IProps, IState> {
     containerRect: IRect,
     scroll: IScroll,
   ): React.CSSProperties {
-    return this.calcPositionStyles(rect, containerRect, scroll);
+    const styles = this.calcPositionStyles(rect, containerRect, scroll);
+
+    if (!this.props.disableHardwareAcceleration) {
+      styles.transform = `translateZ(0)`;
+      styles.willChange = 'position, top';
+    }
+
+    return styles;
   }
 
   recalculateLayoutBeforeUpdate = (): ILayoutSnapshot => {
