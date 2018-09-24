@@ -37,7 +37,7 @@ export default class StickyScrollUpProvider extends React.PureComponent {
   };
 
   updateStickyOffset = (stickyOffset: number, height: number) => {
-    this.stickyOffset.top = stickyOffset;
+    this.stickyOffset.top = Math.min(stickyOffset, height);
     this.stickyOffset.height = height;
   };
 
