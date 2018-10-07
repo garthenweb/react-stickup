@@ -72,7 +72,9 @@ class StickyElement<R extends {}> extends React.Component<IProps<R>> {
 
     return (
       <div ref={forwardRef} style={style} {...props}>
-        {typeof children === 'function' ? children(renderArgs) : children}
+        {typeof children === 'function'
+          ? (children as (options: R) => React.ReactNode)(renderArgs)
+          : children}
       </div>
     );
   }
