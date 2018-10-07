@@ -3,3 +3,4 @@ examples-dist/
 dist/
 .cache/
 .rpt2_cache/
+.vscode/
