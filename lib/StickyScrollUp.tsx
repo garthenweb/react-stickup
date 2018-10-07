@@ -114,6 +114,11 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     }
   }
 
+  isNearToViewport = (rect: IRect): boolean => {
+    const padding = 300;
+    return rect.top - padding < 0;
+  };
+
   getStickyStyles(stickyRect: IRect, scroll: IScroll) {
     const styles = calcPositionStyles(stickyRect, scroll, {
       offsetTop: this.props.defaultOffsetTop,
@@ -121,7 +126,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
     if (!this.props.disableHardwareAcceleration) {
       styles.transform = `translateZ(0)`;
-      styles.willChange = 'position, top';
+      styles.willChange = this.isNearToViewport(stickyRect)
+        ? 'position, top'
+        : null;
     }
 
     return styles;

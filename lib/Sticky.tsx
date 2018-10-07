@@ -62,6 +62,11 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return Boolean(this.props.container);
   };
 
+  isNearToViewport = (rect: IRect): boolean => {
+    const padding = 300;
+    return rect.top - padding < 0 && rect.bottom + padding > 0;
+  };
+
   isSticky = (rect: IRect, containerRect: IRect) => {
     if (!this.hasContainer()) {
       return containerRect.top <= this.offsetTop;
@@ -139,7 +144,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
     if (!this.props.disableHardwareAcceleration) {
       styles.transform = `translateZ(0)`;
-      styles.willChange = 'position, top';
+      styles.willChange = this.isNearToViewport(rect) ? 'position, top' : null;
     }
 
     return styles;
