@@ -109,13 +109,15 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
 }
 
 render(
-  <StickyProvider>
-    <main role="main">
-      <Example />
-      <Placeholder />
-      <Placeholder />
-      <Placeholder />
-    </main>
-  </StickyProvider>,
+  <React.StrictMode>
+    <StickyProvider>
+      <main role="main">
+        <Example />
+        <Placeholder />
+        <Placeholder />
+        <Placeholder />
+      </main>
+    </StickyProvider>
+  </React.StrictMode>,
   document.getElementById('root'),
 );
