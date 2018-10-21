@@ -17,6 +17,7 @@ interface IOwnProps extends IStickyComponentProps {
   children?: TRenderChildren<{
     isSticky: boolean;
     isDockedToBottom: boolean;
+    isNearToViewport: boolean;
   }>;
 }
 
@@ -25,6 +26,7 @@ interface IProps extends IOwnProps, IStickyInjectedProps {}
 interface IState {
   isSticky: boolean;
   isDockedToBottom: boolean;
+  isNearToViewport: boolean;
   styles: React.CSSProperties;
 }
 
@@ -48,6 +50,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
   state: IState = {
     isSticky: false,
     isDockedToBottom: false,
+    isNearToViewport: false,
     styles: {},
   };
 
@@ -177,20 +180,31 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const isSticky = willRenderAsAFunction
       ? this.isSticky(stickyRect, containerRect)
       : false;
-    const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottom = willRenderAsAFunction
       ? this.isDockedToBottom(stickyRect, containerRect)
       : false;
+    const isNearToViewport = willRenderAsAFunction
+      ? this.isNearToViewport(stickyRect)
+      : false;
+    const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottomDidChange =
       this.state.isDockedToBottom !== isDockedToBottom;
+    const isNearToViewportDidChange =
+      this.state.isNearToViewport !== isNearToViewport;
 
-    if (!stylesDidChange && !isStickyDidChange && !isDockedToBottomDidChange) {
+    if (
+      !stylesDidChange &&
+      !isStickyDidChange &&
+      !isDockedToBottomDidChange &&
+      !isNearToViewportDidChange
+    ) {
       return;
     }
 
     this.setState({
       isSticky,
       isDockedToBottom,
+      isNearToViewport,
       styles: stylesDidChange ? styles : stateStyles,
     });
   };
@@ -202,6 +216,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
         TRenderChildren<{
           isSticky: boolean;
           isDockedToBottom: boolean;
+          isNearToViewport: boolean;
         }>
       >
         forwardRef={this.stickyRef}
@@ -211,6 +226,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
         renderArgs={{
           isSticky: this.state.isSticky,
           isDockedToBottom: this.state.isDockedToBottom,
+          isNearToViewport: this.state.isNearToViewport,
         }}
         {...stickyProps}
       />

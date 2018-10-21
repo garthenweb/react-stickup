@@ -47,7 +47,12 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
           disabled={this.state.disableHeader}
           defaultOffsetTop={1000}
         >
-          <div className="header">Header</div>
+          {({ isSticky, isNearToViewport }) => (
+            <div className="header">
+              Header isNearToViewport: {isNearToViewport ? 'true' : 'false'},
+              isSticky: {isSticky ? 'true' : 'false'}
+            </div>
+          )}
         </StickyScrollUp>
         <Placeholder />
 
@@ -63,7 +68,7 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
             container={this.container2}
             stickyProps={{ className: 'sticky-placeholder' }}
           >
-            {({ isSticky, isDockedToBottom }) => (
+            {({ isSticky, isDockedToBottom, isNearToViewport }) => (
               <div className="sticky-inline sticky-inline-odd">
                 stickyProps: paddingBottom: 100
                 <br />
@@ -71,6 +76,7 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
                 <br />
                 isDockedToBottom: {isDockedToBottom ? 'true' : 'false'}
                 <br />
+                isNearToViewport: {isNearToViewport ? 'true' : 'false'}
               </div>
             )}
           </Sticky>

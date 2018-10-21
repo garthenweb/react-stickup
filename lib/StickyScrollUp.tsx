@@ -13,7 +13,10 @@ import {
 import { supportsWillChange } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
-  children?: TRenderChildren<undefined>;
+  children?: TRenderChildren<{
+    isNearToViewport: boolean;
+    isSticky: boolean;
+  }>;
 }
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}
@@ -22,6 +25,8 @@ interface IState {
   styles: React.CSSProperties;
   stickyOffset: number | null;
   stickyOffsetHeight: number;
+  isNearToViewport: boolean;
+  isSticky: boolean;
 }
 
 const calcPositionStyles = (
@@ -101,6 +106,8 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     styles: {},
     stickyOffset: null,
     stickyOffsetHeight: 0,
+    isNearToViewport: false,
+    isSticky: false,
   };
 
   componentDidUpdate(prevProps: IProps, prevState: IState) {
@@ -145,6 +152,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     { scroll }: { scroll: IScroll },
     stickyRect: IRect,
   ) => {
+    // in case children is not a function renderArgs will never be used
+    const willRenderAsAFunction = typeof this.props.children === 'function';
+
     const nextOffset = Math.max(stickyRect.bottom, 0);
     const nextOffsetHeight = stickyRect.height;
     const offsetDidChange = this.state.stickyOffset !== nextOffset;
@@ -157,8 +167,23 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     const styles = this.getStickyStyles(stickyRect, scroll);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqual(styles, stateStyles);
+    const isNearToViewport = willRenderAsAFunction
+      ? this.isNearToViewport(stickyRect)
+      : false;
+    const isSticky = willRenderAsAFunction
+      ? styles.top === 0 && styles.position === 'fixed'
+      : false;
+    const isNearToViewportDidChange =
+      this.state.isNearToViewport !== isNearToViewport;
+    const isStickyDidChange = this.state.isSticky !== isSticky;
 
-    if (!stylesDidChange && !offsetDidChange && !offsetHeightDidChange) {
+    if (
+      !stylesDidChange &&
+      !offsetDidChange &&
+      !offsetHeightDidChange &&
+      !isNearToViewportDidChange &&
+      !isStickyDidChange
+    ) {
       return;
     }
 
@@ -166,17 +191,28 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
       styles: stylesDidChange ? styles : stateStyles,
       stickyOffset: nextOffset,
       stickyOffsetHeight: nextOffsetHeight,
+      isNearToViewport,
+      isSticky,
     });
   };
 
   renderSticky = ({ isRecalculating }: { isRecalculating: boolean }) => {
     const { disabled, children, stickyProps } = this.props;
     return (
-      <StickyElement<TRenderChildren<undefined>>
+      <StickyElement<
+        TRenderChildren<{
+          isNearToViewport: boolean;
+          isSticky: boolean;
+        }>
+      >
         forwardRef={this.stickyRef}
         positionStyle={this.state.styles}
         disabled={disabled || isRecalculating}
         children={children}
+        renderArgs={{
+          isNearToViewport: this.state.isNearToViewport,
+          isSticky: this.state.isSticky,
+        }}
         {...stickyProps}
       />
     );
