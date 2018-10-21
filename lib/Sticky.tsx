@@ -10,6 +10,7 @@ import {
   IStickyComponentProps,
   IStickyInjectedProps,
 } from './types';
+import { supportsWillChange } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
   container?: React.RefObject<any>;
@@ -143,8 +144,12 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const styles = this.calcPositionStyles(rect, containerRect, scroll);
 
     if (!this.props.disableHardwareAcceleration) {
-      styles.transform = `translateZ(0)`;
-      styles.willChange = this.isNearToViewport(rect) ? 'position, top' : null;
+      const shouldAccelerate = this.isNearToViewport(rect);
+      if (supportsWillChange) {
+        styles.willChange = shouldAccelerate ? 'position, top' : null;
+      } else {
+        styles.transform = shouldAccelerate ? `translateZ(0)` : null;
+      }
     }
 
     return styles;

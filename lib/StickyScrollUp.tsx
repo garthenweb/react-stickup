@@ -10,6 +10,7 @@ import {
   IStickyComponentProps,
   IStickyInjectedProps,
 } from './types';
+import { supportsWillChange } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
   children?: TRenderChildren<undefined>;
@@ -125,10 +126,12 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     });
 
     if (!this.props.disableHardwareAcceleration) {
-      styles.transform = `translateZ(0)`;
-      styles.willChange = this.isNearToViewport(stickyRect)
-        ? 'position, top'
-        : null;
+      const shouldAccelerate = this.isNearToViewport(stickyRect);
+      if (supportsWillChange) {
+        styles.willChange = shouldAccelerate ? 'position, top' : null;
+      } else {
+        styles.transform = shouldAccelerate ? `translateZ(0)` : null;
+      }
     }
 
     return styles;
