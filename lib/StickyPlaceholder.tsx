@@ -44,8 +44,8 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
   }
 
   static getDerivedStateFromProps(props: IProps, state: IState): IState | null {
-    const { width, clientWidth } = props.dimensions;
-    const nextClientSize = `width:${width},clientWidth:${clientWidth}`;
+    const { width, height, clientWidth, clientHeight } = props.dimensions;
+    const nextClientSize = `width:${width},clientWidth:${clientWidth},height:${height},clientHeight:${clientHeight}`;
     if (state.isRecalculating) {
       const stickyRect = props.stickyRef.current.getBoundingClientRect();
       return {
@@ -96,6 +96,7 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
   }
 }
 
-export default connectViewport({ omit: ['scroll'] })<IOwnProps>(
-  StickyPlaceholder,
-);
+export default connectViewport({
+  omit: ['scroll'],
+  deferUpdateUntilIdle: true,
+})<IOwnProps>(StickyPlaceholder);
