@@ -13,7 +13,13 @@ import {
 import { supportsWillChange } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
+  /**
+   * The reference to the container to stick into. If this is not set, the component will be sticky regardless how far the user scrolls down.
+   */
   container?: React.RefObject<any>;
+  /**
+   * The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
+   */
   children?: TRenderChildren<{
     isSticky: boolean;
     isDockedToBottom: boolean;

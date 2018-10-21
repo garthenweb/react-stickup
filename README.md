@@ -1,39 +1,92 @@
 # React Stickup
 
-The goal of this project is to create a set of components that create a sticky behavior and are able to interact with each other. [See an example here](http://garthenweb.github.io/react-stickup).
+The goal of this project is to allow elements to stick to the top of the page while scrolling.
 
-## Installation/ requirements
+The `Sticky` component behaves equal to the css property `position: sticky`. There are already some components out there that do exactly that. Special about the *react-stickup* library is the `StickyScrollUp` component which is only sticky when the user scrolls up. This behavior is known e.g. from the Chrome Browser on Android.
 
-Please note that `react` version 16.3 or higher is required for this library to work because it is using the context as well as references api.
+[Please see the example for a better idea what this is about.](http://garthenweb.github.io/react-stickup)
+
+## Installation
 
 ```
 npm install --save react-stickup
 ```
 
+## Requirements
+
+* [react](https://reactjs.org/) version `16.3` or higher
+
+## Static Types
+
+* Support for [Typescript](https://www.typescriptlang.org/) is included within this library, no need to install addition packages
+* [Flow](https://flow.org/en/) is not yet supported
+
+
+## Client Support
+
+This library aims to support the following clients
+
+* Chrome/ Chrome Android (latest)
+* Firefox (latest)
+* Edge (latest)
+* Safari/ Safari iOS (latest)
+* NodeJS (latest)
+* Internet Explorer 11 (with @babel/polyfill)
+
+Please fill an issue in case your client is not supported or you see an issue in one of the above.
+
 ## Usage
 
 ### StickyProvider
 
-This component does not render anything but is required as a parent for `Sticky` and `StickyScrollUp` component to work. It will take care of registration of event handlers and provides a communication channel between components.
+This component is required as a parent for `Sticky` and `StickyScrollUp` component to work. It will take care of registration of event handlers and provides a communication channel between components. The main implementation is based on [react-viewport-utils](https://github.com/garthenweb/react-viewport-utils).
 
 ### Sticky
 
-Acts like `position: sticky` css property but with better browser support.
-By default the component will stick until the top offset is reached, but it is also possible to attache a container by reference the `Sticky` component cannot escape from.
+Acts like `position: sticky` css property.
+By default the component will be sticky when the top offset is reached and will stay that way. In case it should only stick within a certain container it can get assigned as a reference.
 
-**Important**: To work properly the `Sticky` component must have a `StickyProvider` as a parent within the tree.
+**Important**: To work properly the `Sticky` component must have a `StickyProvider` as a parent within its tree.
 
-Allows to set the following properties:
+#### Properties
 
-* `container?: React.RefObject<any>`: the reference to the container to stick into. If this is not set, the component will be sticky regardless how far the user scrolls down.
-* `children?: React.ReactNode | ((options: { isSticky: boolean, isDockedToBottom: boolean }) => React.ReactNode)`: the child node that is rendered within the sticky container. When rendered as a function it will add further information the the function (see types).
-* `defaultOffsetTop?: number`: a top offset to create a padding between the browser window and other components.
-* `disableHardwareAcceleration?: boolean`: By default css styles for hardware acceleration are activated. This allows to turn it off.
-* `disableResizing?: boolean`: the components will resize when the width of the window changes to adjust its height and with. This allows to turn it off.
-* `disabled?: boolean`: allows to disable all sticky behavior. Please note that this will not remove the created elements.
-* `stickyProps?: {}`: all properties within this object are spread directly into the sticky element within the component. This e.g. allows to add css styles by `className` or `style`.
-* `style?: React.CSSProperties`: will be merged with generated styles of the placeholder element.
-* `className?: string`: will be added to the placeholder element.
+**`children?: React.ReactNode | ((options: { isSticky: boolean, isDockedToBottom: boolean, isNearToViewport: boolean }) => React.ReactNode)`**
+
+The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
+
+**`container?: React.RefObject<any>`**
+
+The reference to the container to stick into. If this is not set, the component will be sticky regardless how far the user scrolls down.
+
+**`defaultOffsetTop?: number`**
+
+A top offset to create a padding between the browser window and the sticky component when sticky.
+
+**`disabled?: boolean`**
+
+Allows to disable all sticky behavior. Use this in case you need to temporary disable the sticky behavior but you don't want to unmount it for performance reasons.
+
+**`disableHardwareAcceleration?: boolean`**
+
+By default css styles for hardware acceleration (`will-change` if supported, otherwise falls back to `transform`) are activated. This allows to turn it off.
+
+**`disableResizing?: boolean`**
+
+The components will resize when the width of the window changes to adjust its height and with. This allows to turn the resizing off.
+
+**`stickyProps?: {}`**
+
+All properties within this object are spread directly into the sticky element within the component. This e.g. allows to add css styles by `className` or `style`.
+
+**`style?: React.CSSProperties`**
+
+Will be merged with generated styles of the placeholder element. It also allows to override generated styles.
+
+**`className?: string`**
+
+The class name is passed directly to the placeholder element.
+
+#### Example
 
 ``` javascript
 import * as React from 'react';
@@ -61,20 +114,45 @@ render(
 
 ### StickyScrollUp
 
-Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. `Sticky` next to the `StickyScrollUp` will stick to the bottom of it.
+Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. `Sticky` next to the `StickyScrollUp` will stick to the bottom of it and will therefore not overlap.
 
-**Important**: To work properly the `StickyScrollUp` component must have a `StickyProvider` as a parent within the tree. All `Sticky` must be wrapped by the same instance of the `StickyProvider`as the `StickyScrollUp` component.
+**Important**: To work properly the `StickyScrollUp` component must have a `StickyProvider` as a parent within its tree. All `Sticky` components must be wrapped by the same instance of the `StickyProvider`as the `StickyScrollUp` component to not overlap.
 
-Allows to set the following properties:
+#### Properties
 
-* `children?: React.ReactNode | (() => React.ReactNode)`: the child node that is rendered within the sticky container.
-* `defaultOffsetTop?: number`: when not initialized as the first element within the page this allows to set an offset by hand.
-* `disableHardwareAcceleration?: boolean`: By default css styles for hardware acceleration are activated. This allows to turn it off.
-* `disableResizing?: boolean`: the components will resize when the width of the window changes to adjust its height and with. This allows to turn it off.
-* `disabled?: boolean`: allows to disable all sticky behavior. Please note that this will not remove the created elements.
-* `stickyProps?: {}`: all properties within this object are spread directly into the sticky element within the component. This e.g. allows to add css styles by `className` or `style`.
-* `style?: React.CSSProperties`: will be merged with generated styles of the placeholder element.
-* `className?: string`: will be added to the placeholder element.
+**`children?: React.ReactNode | ((options: { isSticky: boolean, isNearToViewport: boolean }) => React.ReactNode)`**
+
+The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
+
+**`defaultOffsetTop?: number`**
+
+When not initialized as the first element within the page (directly at the top) this allows to set an offset by hand from where the component will be sticky. Its planned to do this automatically in the future, but the library is not there yet. See #11.
+
+**`disabled?: boolean`**
+
+Allows to disable all sticky behavior. Use this in case you need to temporary disable the sticky behavior but you don't want to unmount it for performance reasons.
+
+**`disableHardwareAcceleration?: boolean`**
+
+By default css styles for hardware acceleration (`will-change` if supported, otherwise falls back to `transform`) are activated. This allows to turn it off.
+
+**`disableResizing?: boolean`**
+
+The components will resize when the width of the window changes to adjust its height and with. This allows to turn the resizing off.
+
+**`stickyProps?: {}`**
+
+All properties within this object are spread directly into the sticky element within the component. This e.g. allows to add css styles by `className` or `style`.
+
+**`style?: React.CSSProperties`**
+
+Will be merged with generated styles of the placeholder element. It also allows to override generated styles.
+
+**`className?: string`**
+
+The class name is passed directly to the placeholder element.
+
+#### Example
 
 ``` javascript
 import * as React from 'react';
@@ -99,6 +177,16 @@ render(
   document.querySelector('main')
 );
 ```
+
+## Contributing
+
+Contributions are highly appreciated! The easiest is to fill an issue in case there is one before providing a PR so we can discuss the issue and a possible solution up front.
+
+At the moment there is not a test suite because its tricky to test the sticky behavior automated. I consider creating some e2e tests with Cypress in the future. In case you are interested in helping on that, please let me know!
+
+For now, please make sure to add a test case for all features in the examples.
+
+To start the example with the recent library changes just run `npm start` on the command.
 
 ## License
 

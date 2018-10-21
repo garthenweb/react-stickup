@@ -13,6 +13,9 @@ import {
 import { supportsWillChange } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
+  /**
+   * The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
+   */
   children?: TRenderChildren<{
     isNearToViewport: boolean;
     isSticky: boolean;

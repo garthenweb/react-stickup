@@ -1,7 +1,7 @@
 {
   "name": "react-stickup",
   "version": "1.3.2",
-  "description": "React components for sophisticated sticky behavior",
+  "description": "React components to stick elements at the top of the page while scrolling",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "typings": "dist/index.d.ts",
