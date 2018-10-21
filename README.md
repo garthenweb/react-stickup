@@ -48,6 +48,32 @@ By default the component will be sticky when the top offset is reached and will 
 
 **Important**: To work properly the `Sticky` component must have a `StickyProvider` as a parent within its tree.
 
+#### Example
+
+``` javascript
+import * as React from 'react';
+import { Sticky } from 'react-stickup';
+
+const container = React.createRef();
+
+render(
+  <StickyProvider>
+    <div ref={container}>
+      <Sticky container={container}>
+        <Header>My Header</Header>
+      </Sticky>
+      <div style={{ height: '5000px' }}>
+        Lots of content
+      </div>
+    </div>
+    <Sticky>
+      <Header>My Header</Header>
+    </Sticky>
+  </StickyProvider>,
+  document.querySelector('main')
+);
+```
+
 #### Properties
 
 **`children?: React.ReactNode | ((options: { isSticky: boolean, isDockedToBottom: boolean, isNearToViewport: boolean }) => React.ReactNode)`**
@@ -86,16 +112,25 @@ Will be merged with generated styles of the placeholder element. It also allows 
 
 The class name is passed directly to the placeholder element.
 
+### StickyScrollUp
+
+Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. `Sticky` next to the `StickyScrollUp` will stick to the bottom of it and will therefore not overlap.
+
+**Important**: To work properly the `StickyScrollUp` component must have a `StickyProvider` as a parent within its tree. All `Sticky` components must be wrapped by the same instance of the `StickyProvider`as the `StickyScrollUp` component to not overlap.
+
 #### Example
 
 ``` javascript
 import * as React from 'react';
-import { Sticky } from 'react-stickup';
+import { Sticky, StickyScrollUp, StickyProvider } from 'react-stickup';
 
 const container = React.createRef();
 
 render(
   <StickyProvider>
+    <StickyScrollUp>
+      My Stick up container
+    </StickyScrollUp>
     <div ref={container}>
       <Sticky container={container}>
         <Header>My Header</Header>
@@ -104,19 +139,10 @@ render(
         Lots of content
       </div>
     </div>
-    <Sticky>
-      <Header>My Header</Header>
-    </Sticky>
   </StickyProvider>,
   document.querySelector('main')
 );
 ```
-
-### StickyScrollUp
-
-Only Sticky to the top of the page in case it the page is scrolled up. When scrolled down, the content will just scroll out. `Sticky` next to the `StickyScrollUp` will stick to the bottom of it and will therefore not overlap.
-
-**Important**: To work properly the `StickyScrollUp` component must have a `StickyProvider` as a parent within its tree. All `Sticky` components must be wrapped by the same instance of the `StickyProvider`as the `StickyScrollUp` component to not overlap.
 
 #### Properties
 
@@ -151,32 +177,6 @@ Will be merged with generated styles of the placeholder element. It also allows 
 **`className?: string`**
 
 The class name is passed directly to the placeholder element.
-
-#### Example
-
-``` javascript
-import * as React from 'react';
-import { Sticky, StickyScrollUp, StickyProvider } from 'react-stickup';
-
-const container = React.createRef();
-
-render(
-  <StickyProvider>
-    <StickyScrollUp>
-      My Stick up container
-    </StickyScrollUp>
-    <div ref={container}>
-      <Sticky container={container}>
-        <Header>My Header</Header>
-      </Sticky>
-      <div style={{ height: '5000px' }}>
-        Lots of content
-      </div>
-    </div>
-  </StickyProvider>,
-  document.querySelector('main')
-);
-```
 
 ## Contributing
 
