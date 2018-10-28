@@ -1,4 +1,3 @@
-
 export type TRenderChildren<O> =
   | React.ReactNode
   | ((options: O) => React.ReactNode);

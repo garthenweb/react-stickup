@@ -43,7 +43,7 @@ export default class StickyScrollUpProvider extends React.PureComponent {
 
   render() {
     return (
-      <ViewportProvider>
+      <ViewportProvider experimentalSchedulerEnabled>
         <StickyGroupContext.Provider
           value={{
             updateStickyOffset: this.updateStickyOffset,

@@ -34,7 +34,7 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
   render() {
     return (
       <>
-        <ObserveViewport disableDimensionsUpdates>
+        <ObserveViewport disableDimensionsUpdates priority="low">
           {({ scroll }) => (
             <div className="scrollPosition">
               {scroll.x.toFixed(2)}x{scroll.y.toFixed(2)}

@@ -189,9 +189,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const isDockedToBottom = willRenderAsAFunction
       ? this.isDockedToBottom(stickyRect, containerRect)
       : false;
-    const isNearToViewport = willRenderAsAFunction
-      ? this.isNearToViewport(stickyRect)
-      : false;
+    const isNearToViewport = this.isNearToViewport(stickyRect);
     const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottomDidChange =
       this.state.isDockedToBottom !== isDockedToBottom;
@@ -258,6 +256,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
           disableDimensionsUpdates
           onUpdate={this.handleScrollUpdate}
           recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}
+          priority={this.state.isNearToViewport ? 'highest' : 'low'}
         />
       </>
     );

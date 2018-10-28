@@ -170,9 +170,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     const styles = this.getStickyStyles(stickyRect, scroll);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqual(styles, stateStyles);
-    const isNearToViewport = willRenderAsAFunction
-      ? this.isNearToViewport(stickyRect)
-      : false;
+    const isNearToViewport = this.isNearToViewport(stickyRect);
     const isSticky = willRenderAsAFunction
       ? styles.top === 0 && styles.position === 'fixed'
       : false;
@@ -239,6 +237,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
           disableDimensionsUpdates
           onUpdate={this.handleViewportUpdate}
           recalculateLayoutBeforeUpdate={this.recalculateLayoutBeforeUpdate}
+          priority={this.state.isNearToViewport ? 'highest' : 'low'}
         />
       </>
     );
