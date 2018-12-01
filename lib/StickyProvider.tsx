@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ViewportProvider } from 'react-viewport-utils';
-import { wrapDisplayName } from 'recompose';
+
 import { IStickyInjectedProps } from './types';
 
 const StickyGroupContext = React.createContext({
@@ -23,10 +23,10 @@ export const connect = () => <P extends object>(
     </StickyGroupContext.Consumer>
   );
 
-  ConnectedComponent.displayName = wrapDisplayName(
-    WrappedComponent,
-    'connectSticky',
-  );
+  const displayName =
+    WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  ConnectedComponent.displayName = `connectSticky(${displayName})`;
+
   return ConnectedComponent;
 };
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ObserveViewport, IRect, IScroll } from 'react-viewport-utils';
-import { shallowEqual } from 'recompose';
+import shallowEqual from 'shallowequal';
 
 import { connect as connectStickyProvider } from './StickyProvider';
 import StickyElement from './StickyElement';

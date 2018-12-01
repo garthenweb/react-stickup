@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TRenderChildren } from './types';
-import { shallowEqual } from 'recompose';
+import shallowEqual from 'shallowequal';
 
 interface IProps<R> {
   disabled: boolean;
