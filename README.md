@@ -88,6 +88,14 @@ The reference to the container to stick into. If this is not set, the component 
 
 A top offset to create a padding between the browser window and the sticky component when sticky.
 
+**`overflowScroll?: 'end' | 'flow'`**
+
+Defines how the sticky element should react in case its bigger than the viewport.
+Different options are available:
+
+* `end`: The default value will keep the component sticky as long as it reaches the bottom of its container and only then will scroll down.
+* `flow`: The element scrolls with the flow of the scroll direction, therefore the content is easier to access.
+
 **`disabled?: boolean`**
 
 Allows to disable all sticky behavior. Use this in case you need to temporary disable the sticky behavior but you don't want to unmount it for performance reasons.

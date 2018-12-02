@@ -42,14 +42,29 @@ body {
   background: #e6ff60;
 }
 
+.sticky-inline-sidebar {
+  height: 1000px;
+  /* pattern from https://leaverou.github.io/css3patterns/#japanese-cube */
+  background-color:#556;
+  background-image: linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a),
+  linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a);
+  background-size:80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
 .sticky-placeholder {
   padding-bottom: 100px;
 }
 
 .placeholder {
   width: 100%;
-  height: 1000px;
+  height: 2500px;
   border-bottom: 5px solid #333;
+  color: #fff;
   /* pattern from http://lea.verou.me/css3patterns/#stars by Nicolas Gallagher */
   background:
     linear-gradient(324deg, #fdfdfd 4%,   transparent 4%) -70px 43px,
