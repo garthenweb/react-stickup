@@ -158,10 +158,6 @@ render(
 
 The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
 
-**`defaultOffsetTop?: number`**
-
-When not initialized as the first element within the page (directly at the top) this allows to set an offset by hand from where the component will be sticky. Its planned to do this automatically in the future, but the library is not there yet. See #11.
-
 **`disabled?: boolean`**
 
 Allows to disable all sticky behavior. Use this in case you need to temporary disable the sticky behavior but you don't want to unmount it for performance reasons.
@@ -185,6 +181,12 @@ Will be merged with generated styles of the placeholder element. It also allows 
 **`className?: string`**
 
 The class name is passed directly to the placeholder element.
+
+**`defaultOffsetTop?: number`**
+
+DEPRECATED: If not set, the start position is now calculated by default as it was already the case for the `Sticky` component. As there is no use case for this property anymore it will be removed in the future.
+
+When not initialized as the first element within the page (directly at the top) this allows to set an offset by hand from where the component will be sticky.
 
 ## Contributing
 

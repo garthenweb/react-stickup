@@ -39,6 +39,10 @@ interface IOwnProps extends IStickyComponentProps {
    * * flow: The element scrolls with the flow of the scroll direction, therefore the content is easier to access.
    */
   overflowScroll?: OverflowScrollType;
+  /**
+   * A top offset to create a padding between the browser window and the sticky component when sticky.
+   */
+  defaultOffsetTop?: number;
 }
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}

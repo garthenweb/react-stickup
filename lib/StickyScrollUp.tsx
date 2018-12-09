@@ -20,6 +20,11 @@ interface IOwnProps extends IStickyComponentProps {
     isNearToViewport: boolean;
     isSticky: boolean;
   }>;
+  /**
+   * When not initialized as the first element within the page (directly at the top) this allows to set an offset by hand from where the component will be sticky.
+   * @deprecated If not set, the start position is now calculated by default as it was already the case for the `Sticky` component. As there is no use case for this property anymore it will be removed in the future.
+   */
+  defaultOffsetTop?: number;
 }
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}
@@ -97,9 +102,9 @@ const calcPositionStyles = (
 
 class StickyScrollUp extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any> = React.createRef();
+  private placeholderRef: React.RefObject<any> = React.createRef();
 
   static defaultProps = {
-    defaultOffsetTop: 0,
     disableHardwareAcceleration: false,
     disableResizing: false,
     style: {},
@@ -130,9 +135,12 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     return rect.top - padding < 0;
   };
 
-  getStickyStyles(stickyRect: IRect, scroll: IScroll) {
+  getStickyStyles(stickyRect: IRect, placeholderRect: IRect, scroll: IScroll) {
+    const offsetTop = isNaN(this.props.defaultOffsetTop)
+      ? placeholderRect.top + scroll.y
+      : this.props.defaultOffsetTop;
     const styles = calcPositionStyles(stickyRect, scroll, {
-      offsetTop: this.props.defaultOffsetTop,
+      offsetTop,
     });
 
     if (!this.props.disableHardwareAcceleration) {
@@ -147,13 +155,22 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     return styles;
   }
 
-  recalculateLayoutBeforeUpdate = (): IRect => {
-    return this.stickyRef.current.getBoundingClientRect();
+  recalculateLayoutBeforeUpdate = (): {
+    stickyRect: IRect;
+    placeholderRect: IRect;
+  } => {
+    return {
+      placeholderRect: this.placeholderRef.current.getBoundingClientRect(),
+      stickyRect: this.stickyRef.current.getBoundingClientRect(),
+    };
   };
 
   handleViewportUpdate = (
     { scroll }: { scroll: IScroll },
-    stickyRect: IRect,
+    {
+      stickyRect,
+      placeholderRect,
+    }: { stickyRect: IRect; placeholderRect: IRect },
   ) => {
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
@@ -167,7 +184,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
       this.props.updateStickyOffset(nextOffset, nextOffsetHeight);
     }
 
-    const styles = this.getStickyStyles(stickyRect, scroll);
+    const styles = this.getStickyStyles(stickyRect, placeholderRect, scroll);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqual(styles, stateStyles);
     const isNearToViewport = this.isNearToViewport(stickyRect);
@@ -229,6 +246,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
           disabled={disabled}
           stickyRef={this.stickyRef}
           disableResizing={disableResizing}
+          forwardRef={this.placeholderRef}
         >
           {this.renderSticky}
         </StickyPlaceholder>

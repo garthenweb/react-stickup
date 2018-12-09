@@ -3,7 +3,6 @@ export type TRenderChildren<O> =
   | ((options: O) => React.ReactNode);
 
 export interface IStickyComponentProps {
-  defaultOffsetTop?: number;
   /**
    * By default css styles for hardware acceleration (`will-change` if supported, otherwise falls back to `transform`) are activated. This allows to turn it off.
    */

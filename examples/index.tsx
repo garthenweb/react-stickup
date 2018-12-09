@@ -55,7 +55,6 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
         <StickyScrollUp
           className="header-container"
           disabled={this.state.disableHeader}
-          defaultOffsetTop={2500}
         >
           {({ isSticky, isNearToViewport }) => (
             <div className="header">
