@@ -28,14 +28,14 @@ body {
 .header {
   width: 100%;
   background: #009FE3;
-  padding: 50px;
+  padding: 50px 30px;
   font-weight: bold;
 }
 
 .sticky-inline {
   width: 100%;
   background: #ff8080;
-  padding: 50px;
+  padding: 30px;
 }
 
 .sticky-inline-odd {
@@ -43,6 +43,7 @@ body {
 }
 
 .sticky-inline-sidebar {
+  overflow: hidden;
   height: 1000px;
   /* pattern from https://leaverou.github.io/css3patterns/#japanese-cube */
   background-color:#556;
