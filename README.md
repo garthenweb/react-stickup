@@ -1,10 +1,20 @@
-# React Stickup
+# React Stickup ![](https://img.shields.io/npm/l/react-stickup.svg)
+
+![](https://img.shields.io/npm/v/react-stickup.svg)
+![](https://img.shields.io/david/garthenweb/react-stickup.svg)
+![](https://img.shields.io/bundlephobia/minzip/react-stickup.svg)
 
 The goal of this project is to allow elements to stick to the top of the page while scrolling.
 
-The `Sticky` component behaves equal to the css property `position: sticky`. There are already some components out there that do exactly that. Special about the *react-stickup* library is the `StickyScrollUp` component which is only sticky when the user scrolls up. This behavior is known e.g. from the Chrome Browser on Android.
+## Features
 
-[Please see the example for a better idea what this is about.](http://garthenweb.github.io/react-stickup)
+* [`Sticky`](#sticky) component like `position: sticky` with options for elements bigger than the viewport
+* [`StickyScrollUp`](#stickyscrollup) component that is only visible when scrolling up (like the Chrome Browser url bar on Android)
+* Support for modern browsers (including IE11)
+* Build with performance in mind: Blazing fast, even on low end devices
+* Typescript
+
+[See the example to see how the library will work in production.](http://garthenweb.github.io/react-stickup)
 
 ## Installation
 
@@ -18,9 +28,8 @@ npm install --save react-stickup
 
 ## Static Types
 
-* Support for [Typescript](https://www.typescriptlang.org/) is included within this library, no need to install addition packages
-* [Flow](https://flow.org/en/) is not yet supported
-
+* Support for [Typescript](https://www.typescriptlang.org/) is included within this library, no need to install additional packages
+* [Flow](https://flow.org/en/) is not supported (feel free to create a PR)
 
 ## Client Support
 
