@@ -2,5 +2,6 @@ node_modules/
 examples-dist/
 dist/
 .cache/
+coverage/
 .rpt2_cache/
 .vscode/

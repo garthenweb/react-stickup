@@ -10,9 +10,9 @@
     "compile:docs": "rm -rf docs && parcel build ./examples/index.html ./examples/legacy-browsers.html --out-dir='docs' --public-url=\"https://garthenweb.github.io/react-stickup/\"",
     "precompile": "rm -rf dist",
     "compile": "rollup -c",
-    "test": "jest lib",
+    "test": "jest --coverage",
     "fmt": "prettier --write \"lib/*.{ts,tsx}\"  \"examples/*.{ts,tsx}\"",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm test && npm run compile",
     "postversion": "git push && git push --tags"
   },
   "repository": {
