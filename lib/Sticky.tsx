@@ -144,7 +144,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     if (!dimensions) {
       return 0;
     }
-    return Math.max(0, rectSticky.height - dimensions.clientHeight);
+    return Math.max(0, Math.round(rectSticky.height) - dimensions.clientHeight);
   }
 
   calcOverflowScrollFlowStickyStyles(
@@ -155,7 +155,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
   ): React.CSSProperties {
     const heightDiff = this.calcHeightDifference(rectSticky, dimensions);
     const containerTopOffset = containerRect.top + scroll.y;
-    const isStickyBottomReached = rectSticky.bottom <= dimensions.clientHeight;
+    const isStickyBottomReached = Math.round(rectSticky.bottom) <= dimensions.clientHeight;
     const isContainerTopReached = containerRect.top < this.offsetTop;
     const isTurnWithinHeightOffset =
       scroll.yTurn - heightDiff <= containerTopOffset;
