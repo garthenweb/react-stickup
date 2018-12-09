@@ -5,9 +5,12 @@ examples-dist/
 .vscode/
 docs/
 .cache/
+coverage/
 .rpt2_cache/
 .editorconfig
 .prettierrc
 rollup.config.js
 tsconfig.json
+tsconfig.test.json
 tslint.json
+.travis.yml
