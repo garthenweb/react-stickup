@@ -1,11 +1,12 @@
-# React Stickup ![](https://img.shields.io/npm/l/react-stickup.svg)
+# React Stickup
 
+React components to stick elements at the top of the page while scrolling.
+
+![](https://img.shields.io/npm/l/react-stickup.svg)
 [![](https://img.shields.io/npm/v/react-stickup.svg)](https://www.npmjs.com/package/react-stickup)
 ![](https://img.shields.io/david/garthenweb/react-stickup.svg)
 [![](https://img.shields.io/bundlephobia/minzip/react-stickup.svg)](https://bundlephobia.com/result?p=react-stickup)
 [![Build Status](https://travis-ci.org/garthenweb/react-stickup.svg?branch=master)](https://travis-ci.org/garthenweb/react-stickup)
-
-The goal of this project is to allow elements to stick to the top of the page while scrolling.
 
 ## Features
 
