@@ -117,7 +117,7 @@ By default css styles for hardware acceleration (`will-change` if supported, oth
 
 **`disableResizing?: boolean`**
 
-The components will resize when the width of the window changes to adjust its height and with. This allows to turn the resizing off.
+The components will resize when the width of the window changes to adjust its height and width. This allows to turn the resizing off.
 
 **`stickyProps?: {}`**
 
@@ -179,7 +179,7 @@ By default css styles for hardware acceleration (`will-change` if supported, oth
 
 **`disableResizing?: boolean`**
 
-The components will resize when the width of the window changes to adjust its height and with. This allows to turn the resizing off.
+The components will resize when the width of the window changes to adjust its height and width. This allows to turn the resizing off.
 
 **`stickyProps?: {}`**
 
