@@ -30,6 +30,9 @@
     "scroll"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.13.0"
+  },
   "devDependencies": {
     "@babel/polyfill": "^7.4.4",
     "@types/jest": "^24.0.13",
