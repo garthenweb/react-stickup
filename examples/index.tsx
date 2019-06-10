@@ -114,18 +114,24 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
         >
           <div ref={this.container5} style={{ width: '25%' }}>
             <Sticky container={this.container5} overflowScroll="flow">
-              <div className="sticky-inline sticky-inline-sidebar">
-                overflowScroll="flow"
-                <br />
-                <br />
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </div>
+              {({ appliedOverflowScroll }) => (
+                <div className="sticky-inline sticky-inline-sidebar">
+                  overflowScroll="flow"
+                  <br />
+                  <br />
+                  appliedOverflowScroll: {appliedOverflowScroll}
+                  <br />
+                  <br />
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+                  irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                  cupidatat non proident, sunt in culpa qui officia deserunt
+                  mollit anim id est laborum.
+                </div>
+              )}
             </Sticky>
           </div>
           <div ref={this.container6} style={{ width: '25%' }}>

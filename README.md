@@ -87,7 +87,7 @@ render(
 
 #### Properties
 
-**`children?: React.ReactNode | ((options: { isSticky: boolean, isDockedToBottom: boolean, isNearToViewport: boolean }) => React.ReactNode)`**
+**`children?: React.ReactNode | ((options: { isSticky: boolean, isDockedToBottom: boolean, isNearToViewport: boolean, appliedOverflowScroll: 'end' | 'flow' }) => React.ReactNode)`**
 
 The child node that is rendered within the sticky container. When rendered as a function it will add further information the the function which can be used e.g. to update stylings.
 

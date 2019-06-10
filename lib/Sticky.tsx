@@ -31,6 +31,7 @@ interface IOwnProps extends IStickyComponentProps {
     isSticky: boolean;
     isDockedToBottom: boolean;
     isNearToViewport: boolean;
+    appliedOverflowScroll: OverflowScrollType;
   }>;
   /**
    * Defines how the sticky element should react in case its bigger than the viewport.
@@ -51,6 +52,7 @@ interface IState {
   isSticky: boolean;
   isDockedToBottom: boolean;
   isNearToViewport: boolean;
+  appliedOverflowScroll: OverflowScrollType;
   styles: React.CSSProperties;
 }
 
@@ -76,6 +78,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     isSticky: false,
     isDockedToBottom: false,
     isNearToViewport: false,
+    appliedOverflowScroll: 'end',
     styles: {},
   };
 
@@ -94,6 +97,16 @@ class Sticky extends React.PureComponent<IProps, IState> {
   isNearToViewport = (rect: IRect): boolean => {
     const padding = 300;
     return rect.top - padding < 0 && rect.bottom + padding > 0;
+  };
+
+  getOverflowScrollType = (
+    rectSticky: IRect,
+    dimensions: IDimensions,
+  ): OverflowScrollType => {
+    return this.props.overflowScroll === 'flow' &&
+      this.calcHeightDifference(rectSticky, dimensions) > 0
+      ? 'flow'
+      : 'end';
   };
 
   isSticky = (rect: IRect, containerRect: IRect, dimensions: IDimensions) => {
@@ -155,7 +168,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
   ): React.CSSProperties {
     const heightDiff = this.calcHeightDifference(rectSticky, dimensions);
     const containerTopOffset = containerRect.top + scroll.y;
-    const isStickyBottomReached = Math.round(rectSticky.bottom) <= dimensions.height;
+    const isStickyBottomReached =
+      Math.round(rectSticky.bottom) <= dimensions.height;
     const isContainerTopReached = containerRect.top < this.offsetTop;
     const isTurnWithinHeightOffset =
       scroll.yTurn - heightDiff <= containerTopOffset;
@@ -218,10 +232,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     dimensions: IDimensions,
   ): React.CSSProperties {
     if (this.isSticky(rectSticky, containerRect, dimensions)) {
-      if (
-        this.props.overflowScroll === 'flow' &&
-        this.calcHeightDifference(rectSticky, dimensions) > 0
-      ) {
+      if (this.getOverflowScrollType(rectSticky, dimensions) === 'flow') {
         return this.calcOverflowScrollFlowStickyStyles(
           rectSticky,
           containerRect,
@@ -316,17 +327,24 @@ class Sticky extends React.PureComponent<IProps, IState> {
       ? this.isDockedToBottom(stickyRect, containerRect, dimensions)
       : false;
     const isNearToViewport = this.isNearToViewport(stickyRect);
+    const appliedOverflowScroll = this.getOverflowScrollType(
+      stickyRect,
+      dimensions,
+    );
     const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottomDidChange =
       this.state.isDockedToBottom !== isDockedToBottom;
     const isNearToViewportDidChange =
       this.state.isNearToViewport !== isNearToViewport;
+    const appliedOverflowScrollDidChange =
+      appliedOverflowScroll !== this.state.appliedOverflowScroll;
 
     if (
       !stylesDidChange &&
       !isStickyDidChange &&
       !isDockedToBottomDidChange &&
-      !isNearToViewportDidChange
+      !isNearToViewportDidChange &&
+      !appliedOverflowScrollDidChange
     ) {
       return;
     }
@@ -335,6 +353,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       isSticky,
       isDockedToBottom,
       isNearToViewport,
+      appliedOverflowScroll,
       styles: stylesDidChange ? styles : stateStyles,
     });
   };
@@ -347,6 +366,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
           isSticky: boolean;
           isDockedToBottom: boolean;
           isNearToViewport: boolean;
+          appliedOverflowScroll: OverflowScrollType;
         }>
       >
         forwardRef={this.stickyRef}
@@ -357,6 +377,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
           isSticky: this.state.isSticky,
           isDockedToBottom: this.state.isDockedToBottom,
           isNearToViewport: this.state.isNearToViewport,
+          appliedOverflowScroll: this.state.appliedOverflowScroll,
         }}
         {...stickyProps}
       />
