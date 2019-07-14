@@ -95,7 +95,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
   };
 
   isNearToViewport = (rect: IRect): boolean => {
-    const padding = 300;
+    const padding = 700;
     return rect.top - padding < 0 && rect.bottom + padding > 0;
   };
 
