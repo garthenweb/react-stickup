@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ObserveViewport, IRect, IScroll } from 'react-viewport-utils';
-import shallowEqual from 'shallowequal';
 
 import { connect as connectStickyProvider } from './StickyProvider';
 import StickyElement from './StickyElement';
@@ -9,8 +8,9 @@ import {
   TRenderChildren,
   IStickyComponentProps,
   IStickyInjectedProps,
+  IPositionStyles,
 } from './types';
-import { supportsWillChange } from './utils';
+import { supportsWillChange, shallowEqualPositionStyles } from './utils';
 
 interface IOwnProps extends IStickyComponentProps {
   /**
@@ -30,7 +30,7 @@ interface IOwnProps extends IStickyComponentProps {
 interface IProps extends IOwnProps, IStickyInjectedProps {}
 
 interface IState {
-  styles: React.CSSProperties;
+  styles: IPositionStyles;
   isNearToViewport: boolean;
   isSticky: boolean;
 }
@@ -39,7 +39,7 @@ const calcPositionStyles = (
   rect: IRect,
   scroll: IScroll,
   { offsetTop = 0 },
-): React.CSSProperties => {
+): IPositionStyles => {
   const rectTop = Math.round(rect.top);
   const scrollY = Math.round(scroll.y);
   if (scroll.isScrollingDown) {
@@ -180,7 +180,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
     const styles = this.getStickyStyles(stickyRect, placeholderRect, scroll);
     const stateStyles = this.state.styles;
-    const stylesDidChange = !shallowEqual(styles, stateStyles);
+    const stylesDidChange = !shallowEqualPositionStyles(styles, stateStyles);
     const isNearToViewport = this.isNearToViewport(stickyRect);
     const isSticky = willRenderAsAFunction
       ? styles.top === 0 && styles.position === 'fixed'

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TRenderChildren } from './types';
+import { TRenderChildren, IPositionStyles } from './types';
 
 interface IProps<R> {
   disabled: boolean;
@@ -7,7 +7,7 @@ interface IProps<R> {
   children: TRenderChildren<R>;
   forwardRef?: React.RefObject<any>;
   style?: React.CSSProperties;
-  positionStyle?: React.CSSProperties;
+  positionStyle?: IPositionStyles;
 }
 
 const baseStyles: React.CSSProperties = {

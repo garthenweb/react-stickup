@@ -5,7 +5,6 @@ import {
   IScroll,
   IDimensions,
 } from 'react-viewport-utils';
-import shallowEqual from 'shallowequal';
 
 import { connect as connectStickyProvider } from './StickyProvider';
 import StickyElement from './StickyElement';
@@ -14,8 +13,9 @@ import {
   TRenderChildren,
   IStickyComponentProps,
   IStickyInjectedProps,
+  IPositionStyles,
 } from './types';
-import { supportsWillChange } from './utils';
+import { supportsWillChange, shallowEqualPositionStyles } from './utils';
 
 type OverflowScrollType = 'flow' | 'end';
 
@@ -53,7 +53,7 @@ interface IState {
   isDockedToBottom: boolean;
   isNearToViewport: boolean;
   appliedOverflowScroll: OverflowScrollType;
-  styles: React.CSSProperties;
+  styles: IPositionStyles;
 }
 
 interface ILayoutSnapshot {
@@ -165,7 +165,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     containerRect: IRect,
     scroll: IScroll,
     dimensions: IDimensions,
-  ): React.CSSProperties {
+  ): IPositionStyles {
     const containerTop = Math.round(containerRect.top);
     const stickyTop = Math.round(rectSticky.top);
     const scrollY = Math.round(scroll.y);
@@ -232,7 +232,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     containerRect: IRect,
     scroll: IScroll,
     dimensions: IDimensions,
-  ): React.CSSProperties {
+  ): IPositionStyles {
     if (this.isSticky(rectSticky, containerRect, dimensions)) {
       if (this.getOverflowScrollType(rectSticky, dimensions) === 'flow') {
         return this.calcOverflowScrollFlowStickyStyles(
@@ -279,7 +279,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     containerRect: IRect,
     scroll: IScroll,
     dimensions: IDimensions,
-  ): React.CSSProperties {
+  ): IPositionStyles {
     const styles = this.calcPositionStyles(
       rect,
       containerRect,
@@ -322,7 +322,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       dimensions,
     );
     const stateStyles = this.state.styles;
-    const stylesDidChange = !shallowEqual(styles, stateStyles);
+    const stylesDidChange = !shallowEqualPositionStyles(styles, stateStyles);
     const isSticky = willRenderAsAFunction
       ? this.isSticky(stickyRect, containerRect, dimensions)
       : false;

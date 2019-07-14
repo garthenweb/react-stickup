@@ -33,3 +33,10 @@ export interface IStickyInjectedProps {
   stickyOffset: { top: number; height: number };
   updateStickyOffset: (offset: number, height: number) => void;
 }
+
+export interface IPositionStyles {
+  position?: 'fixed' | 'absolute';
+  transform?: string;
+  top?: number;
+  willChange?: string;
+}
