@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { TRenderChildren } from './types';
-import shallowEqual from 'shallowequal';
 
 interface IProps<R> {
   disabled: boolean;
@@ -22,62 +21,30 @@ const prefixTransform = (transform: string): React.CSSProperties => ({
   OTransform: transform,
 });
 
-class StickyElement<R extends {}> extends React.Component<IProps<R>> {
-  shouldComponentUpdate(nextProps: IProps<R>) {
-    const { positionStyle, style, renderArgs, ...rest } = this.props;
-    const {
-      positionStyle: nextPositionStyle,
-      style: nextStyle,
-      renderArgs: nextRenderArgs,
-      ...nextRest
-    } = nextProps;
+const StickyElement = <R extends {}>({
+  children,
+  forwardRef,
+  style: overrideStyles = {},
+  positionStyle = {},
+  disabled,
+  renderArgs,
+  ...props
+}: IProps<R>) => {
+  const style: React.CSSProperties = !disabled
+    ? { ...baseStyles, ...positionStyle, ...overrideStyles }
+    : {};
 
-    if (!shallowEqual(positionStyle, nextPositionStyle)) {
-      return true;
-    }
-
-    if (!shallowEqual(renderArgs, nextRenderArgs)) {
-      return true;
-    }
-
-    if (!shallowEqual(style, nextStyle)) {
-      return true;
-    }
-
-    if (!shallowEqual(rest, nextRest)) {
-      return true;
-    }
-
-    return false;
+  if (style.transform) {
+    Object.assign(style, prefixTransform(style.transform));
   }
 
-  render() {
-    const {
-      children,
-      forwardRef,
-      style: overrideStyles = {},
-      positionStyle = {},
-      disabled,
-      renderArgs,
-      ...props
-    } = this.props;
-
-    const style: React.CSSProperties = !disabled
-      ? { ...baseStyles, ...positionStyle, ...overrideStyles }
-      : {};
-
-    if (style.transform) {
-      Object.assign(style, prefixTransform(style.transform));
-    }
-
-    return (
-      <div ref={forwardRef} style={style} {...props}>
-        {typeof children === 'function'
-          ? (children as (options: R) => React.ReactNode)(renderArgs)
-          : children}
-      </div>
-    );
-  }
-}
+  return (
+    <div ref={forwardRef} style={style} {...props}>
+      {typeof children === 'function'
+        ? (children as (options: R) => React.ReactNode)(renderArgs)
+        : children}
+    </div>
+  );
+};
 
 export default StickyElement;

@@ -31,8 +31,6 @@ interface IProps extends IOwnProps, IStickyInjectedProps {}
 
 interface IState {
   styles: React.CSSProperties;
-  stickyOffset: number | null;
-  stickyOffsetHeight: number;
   isNearToViewport: boolean;
   isSticky: boolean;
 }
@@ -43,9 +41,10 @@ const calcPositionStyles = (
   { offsetTop = 0 },
 ): React.CSSProperties => {
   const rectTop = Math.round(rect.top);
+  const scrollY = Math.round(scroll.y);
   if (scroll.isScrollingDown) {
     // disable sticky mode above the top offset while scrolling down
-    if (rectTop > 0 && scroll.y < offsetTop) {
+    if (rectTop > 0 && scrollY < offsetTop) {
       return {
         position: 'absolute',
         top: 0,
@@ -55,7 +54,7 @@ const calcPositionStyles = (
     // element is visible and scrolls down
     return {
       position: 'absolute',
-      top: Math.max(Math.floor(scroll.y - offsetTop + rect.top), 0),
+      top: Math.max(scrollY - offsetTop + rectTop, 0),
     };
   }
 
@@ -65,31 +64,30 @@ const calcPositionStyles = (
   if (!isTopVisible && !isBottomVisible) {
     return {
       position: 'absolute',
-      top: Math.floor(scroll.y - offsetTop + rect.top),
+      top: scrollY - offsetTop + rectTop,
     };
   }
 
   // disable sticky mode above the top offset while scrolling up
-  if (scroll.y <= offsetTop) {
+  if (scrollY <= offsetTop) {
     return {
       position: 'absolute',
       top: 0,
     };
   }
 
-  if (scroll.yDTurn === 0) {
+  if (Math.round(scroll.yDTurn) === 0) {
     // scroll direction changed from down to up and the element was not visible
     if (isBottomVisible) {
       return {
         position: 'absolute',
-        top: scroll.yTurn - offsetTop - rect.height,
+        top: Math.round(scroll.yTurn) - offsetTop - rect.height,
       };
     }
-
     // scroll direction changed from down to up and the element was fully visible
     return {
       position: 'absolute',
-      top: Math.max(Math.floor(scroll.y - offsetTop), 0),
+      top: Math.max(scrollY - offsetTop, 0),
     };
   }
 
@@ -103,6 +101,8 @@ const calcPositionStyles = (
 class StickyScrollUp extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<any> = React.createRef();
   private placeholderRef: React.RefObject<any> = React.createRef();
+  private stickyOffset: number | null = null;
+  private stickyOffsetHeight: number = 0;
 
   static defaultProps = {
     disableHardwareAcceleration: false,
@@ -112,8 +112,6 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
   state: IState = {
     styles: {},
-    stickyOffset: null,
-    stickyOffsetHeight: 0,
     isNearToViewport: false,
     isSticky: false,
   };
@@ -124,8 +122,8 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
       prevProps.disabled !== this.props.disabled
     ) {
       this.props.updateStickyOffset(
-        this.props.disabled ? 0 : this.state.stickyOffset,
-        this.state.stickyOffsetHeight,
+        this.props.disabled ? 0 : this.stickyOffset,
+        this.stickyOffsetHeight,
       );
     }
   }
@@ -137,7 +135,7 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
 
   getStickyStyles(stickyRect: IRect, placeholderRect: IRect, scroll: IScroll) {
     const offsetTop = isNaN(this.props.defaultOffsetTop)
-      ? placeholderRect.top + scroll.y
+      ? Math.round(placeholderRect.top) + Math.round(scroll.y)
       : this.props.defaultOffsetTop;
     const styles = calcPositionStyles(stickyRect, scroll, {
       offsetTop,
@@ -175,14 +173,10 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
 
-    const nextOffset = Math.max(stickyRect.bottom, 0);
+    const nextOffset = Math.max(Math.round(stickyRect.bottom), 0);
     const nextOffsetHeight = stickyRect.height;
-    const offsetDidChange = this.state.stickyOffset !== nextOffset;
-    const offsetHeightDidChange =
-      this.state.stickyOffsetHeight !== nextOffsetHeight;
-    if (this.props.updateStickyOffset && offsetDidChange) {
-      this.props.updateStickyOffset(nextOffset, nextOffsetHeight);
-    }
+    const offsetDidChange = this.stickyOffset !== nextOffset;
+    const offsetHeightDidChange = this.stickyOffsetHeight !== nextOffsetHeight;
 
     const styles = this.getStickyStyles(stickyRect, placeholderRect, scroll);
     const stateStyles = this.state.styles;
@@ -196,19 +190,18 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     const isStickyDidChange = this.state.isSticky !== isSticky;
 
     if (
-      !stylesDidChange &&
-      !offsetDidChange &&
-      !offsetHeightDidChange &&
-      !isNearToViewportDidChange &&
-      !isStickyDidChange
+      this.props.updateStickyOffset &&
+      (offsetDidChange || offsetHeightDidChange)
     ) {
+      this.props.updateStickyOffset(nextOffset, nextOffsetHeight);
+    }
+
+    if (!stylesDidChange && !isNearToViewportDidChange && !isStickyDidChange) {
       return;
     }
 
     this.setState({
       styles: stylesDidChange ? styles : stateStyles,
-      stickyOffset: nextOffset,
-      stickyOffsetHeight: nextOffsetHeight,
       isNearToViewport,
       isSticky,
     });

@@ -62,8 +62,8 @@ interface ILayoutSnapshot {
 }
 
 class Sticky extends React.PureComponent<IProps, IState> {
-  private stickyRef: React.RefObject<any> = React.createRef();
-  private placeholderRef: React.RefObject<any> = React.createRef();
+  private stickyRef: React.RefObject<HTMLElement> = React.createRef();
+  private placeholderRef: React.RefObject<HTMLElement> = React.createRef();
 
   static defaultProps = {
     stickyOffset: { top: 0, height: 0 },
@@ -111,10 +111,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
 
   isSticky = (rect: IRect, containerRect: IRect, dimensions: IDimensions) => {
     if (!this.hasContainer()) {
-      return containerRect.top <= this.offsetTop;
+      return Math.round(containerRect.top) <= this.offsetTop;
     }
 
-    if (containerRect.top > this.offsetTop) {
+    if (Math.round(containerRect.top) > this.offsetTop) {
       return false;
     }
 
@@ -122,7 +122,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       this.props.overflowScroll === 'flow'
         ? Math.min(rect.height, dimensions.height)
         : rect.height;
-    if (containerRect.bottom - this.offsetTop < height) {
+    if (Math.round(containerRect.bottom) - this.offsetTop < height) {
       return false;
     }
 
@@ -146,7 +146,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       this.props.overflowScroll === 'flow'
         ? Math.min(rect.height, dimensions.height)
         : rect.height;
-    if (containerRect.bottom - this.offsetTop >= height) {
+    if (Math.round(containerRect.bottom) - this.offsetTop >= height) {
       return false;
     }
 
@@ -166,16 +166,20 @@ class Sticky extends React.PureComponent<IProps, IState> {
     scroll: IScroll,
     dimensions: IDimensions,
   ): React.CSSProperties {
+    const containerTop = Math.round(containerRect.top);
+    const stickyTop = Math.round(rectSticky.top);
+    const scrollY = Math.round(scroll.y);
+    const scrollYTurn = Math.round(scroll.yTurn);
     const heightDiff = this.calcHeightDifference(rectSticky, dimensions);
-    const containerTopOffset = containerRect.top + scroll.y;
+    const containerTopOffset = containerTop + scrollY;
     const isStickyBottomReached =
       Math.round(rectSticky.bottom) <= dimensions.height;
-    const isContainerTopReached = containerRect.top < this.offsetTop;
+    const isContainerTopReached = containerTop < this.offsetTop;
     const isTurnWithinHeightOffset =
-      scroll.yTurn - heightDiff <= containerTopOffset;
-    const isTurnPointBeforeContainer = scroll.yTurn < containerTopOffset;
+      scrollYTurn - heightDiff <= containerTopOffset;
+    const isTurnPointBeforeContainer = scrollYTurn < containerTopOffset;
     const isTurnPointAfterContainer =
-      scroll.yTurn > containerTopOffset + containerRect.height;
+      scrollYTurn > containerTopOffset + containerRect.height;
     const isTurnPointWithinContainer =
       !isTurnPointBeforeContainer && !isTurnPointAfterContainer;
     // scroll down AND sticky rect bottom not reached AND turn point not within the container OR
@@ -202,7 +206,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       };
     }
 
-    const isStickyTopReached = rectSticky.top >= this.offsetTop;
+    const isStickyTopReached = stickyTop >= this.offsetTop;
     // scroll down AND turn point within container OR
     // scroll up AND turn point not before container AND not sticky top reached
     if (
@@ -213,9 +217,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     ) {
       return {
         position: 'absolute',
-        top: Math.abs(
-          scroll.y - rectSticky.top + (containerRect.top - scroll.y),
-        ),
+        top: Math.abs(scrollY - stickyTop + (containerTop - scrollY)),
       };
     }
 
@@ -240,15 +242,16 @@ class Sticky extends React.PureComponent<IProps, IState> {
           dimensions,
         );
       }
-
-      const stickyOffset = Math.round(this.props.stickyOffset.top);
+      const stickyOffset = this.props.stickyOffset.top;
       const stickyHeight = this.props.stickyOffset.height;
       const headIsFlexible = stickyOffset > 0 && stickyOffset < stickyHeight;
       if (headIsFlexible) {
-        const relYTurn = scroll.yTurn - scroll.y - containerRect.top;
+        const relYTurn =
+          Math.round(scroll.yTurn - scroll.y + scroll.yDTurn) -
+          Math.round(containerRect.top);
         return {
           position: 'absolute',
-          top: relYTurn + this.offsetTop + scroll.yDTurn,
+          top: relYTurn + this.offsetTop,
         };
       }
 
