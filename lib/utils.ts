@@ -11,6 +11,14 @@ export const supportsWillChange = (() => {
   return 'willChange' in document.documentElement.style;
 })();
 
+export const supportsPositionSticky = (() => {
+  const isBrowser = typeof window !== 'undefined' && typeof CSS !== 'undefined';
+  if (!isBrowser) {
+    return false;
+  }
+  return CSS.supports ? CSS.supports('position: sticky') : false;
+})();
+
 export const shallowEqualPositionStyles = (
   a: IPositionStyles,
   b: IPositionStyles,

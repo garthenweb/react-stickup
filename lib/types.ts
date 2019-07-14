@@ -35,7 +35,7 @@ export interface IStickyInjectedProps {
 }
 
 export interface IPositionStyles {
-  position?: 'fixed' | 'absolute';
+  position?: 'fixed' | 'absolute' | 'sticky';
   transform?: string;
   top?: number;
   willChange?: string;

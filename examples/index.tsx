@@ -66,7 +66,11 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
         <Placeholder />
 
         <div ref={this.container1}>
-          <Sticky container={this.container1} style={{ marginTop: 100 }}>
+          <Sticky
+            container={this.container1}
+            experimentalNative
+            style={{ marginTop: 100 }}
+          >
             <div className="sticky-inline">style: marginTop: 100</div>
           </Sticky>
           <Placeholder />

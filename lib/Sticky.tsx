@@ -15,7 +15,11 @@ import {
   IStickyInjectedProps,
   IPositionStyles,
 } from './types';
-import { supportsWillChange, shallowEqualPositionStyles } from './utils';
+import {
+  supportsWillChange,
+  shallowEqualPositionStyles,
+  supportsPositionSticky,
+} from './utils';
 
 type OverflowScrollType = 'flow' | 'end';
 
@@ -44,6 +48,10 @@ interface IOwnProps extends IStickyComponentProps {
    * A top offset to create a padding between the browser window and the sticky component when sticky.
    */
   defaultOffsetTop?: number;
+  /**
+   * Tries to detect when the usage of native `position: sticky` is possible and uses it as long as possible. This is an experimental property and might change in its behavior or disappear in the future.
+   */
+  experimentalNative?: boolean;
 }
 
 interface IProps extends IOwnProps, IStickyInjectedProps {}
@@ -54,6 +62,7 @@ interface IState {
   isNearToViewport: boolean;
   appliedOverflowScroll: OverflowScrollType;
   styles: IPositionStyles;
+  useNativeSticky: boolean;
 }
 
 interface ILayoutSnapshot {
@@ -64,6 +73,7 @@ interface ILayoutSnapshot {
 class Sticky extends React.PureComponent<IProps, IState> {
   private stickyRef: React.RefObject<HTMLElement> = React.createRef();
   private placeholderRef: React.RefObject<HTMLElement> = React.createRef();
+  private nativeStickyThrewOnce: boolean = false;
 
   static defaultProps = {
     stickyOffset: { top: 0, height: 0 },
@@ -71,6 +81,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     disableResizing: false,
     disableHardwareAcceleration: false,
     overflowScroll: 'end' as OverflowScrollType,
+    experimentalNative: false,
     style: {},
   };
 
@@ -80,6 +91,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     isNearToViewport: false,
     appliedOverflowScroll: 'end',
     styles: {},
+    useNativeSticky: false,
   };
 
   get container() {
@@ -126,6 +138,30 @@ class Sticky extends React.PureComponent<IProps, IState> {
       return false;
     }
 
+    return true;
+  };
+
+  shouldUseNativeSticky = (appliedOverflowScroll: OverflowScrollType) => {
+    if (
+      !this.props.experimentalNative ||
+      !supportsPositionSticky ||
+      appliedOverflowScroll !== 'end' ||
+      this.props.stickyOffset.top !== 0
+    ) {
+      return false;
+    }
+
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      !this.nativeStickyThrewOnce &&
+      (this.placeholderRef && this.placeholderRef.current.parentElement) !==
+        (this.props.container && this.props.container.current)
+    ) {
+      console.warn(
+        'react-stickup: a sticky element was used with property `experimentalNative` but its `container` is not the parent the sticky component. As the native sticky implementation always uses its parent element as the container. This can lead to unexpected results. It is therefore recommended to change the DOM structure so that the container is a direct parent of the Sticky component or to remove the `experimentalNative` property.',
+      );
+      this.nativeStickyThrewOnce = true;
+    }
     return true;
   };
 
@@ -322,13 +358,16 @@ class Sticky extends React.PureComponent<IProps, IState> {
   ) => {
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
-
-    const styles = this.getStickyStyles(
+    const appliedOverflowScroll = this.getOverflowScrollType(
       stickyRect,
-      containerRect,
-      scroll,
       dimensions,
     );
+
+    const useNativeSticky = this.shouldUseNativeSticky(appliedOverflowScroll);
+
+    const styles = useNativeSticky
+      ? {}
+      : this.getStickyStyles(stickyRect, containerRect, scroll, dimensions);
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqualPositionStyles(styles, stateStyles);
     const isSticky = willRenderAsAFunction
@@ -338,10 +377,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
       ? this.isDockedToBottom(stickyRect, containerRect, dimensions)
       : false;
     const isNearToViewport = this.isNearToViewport(stickyRect);
-    const appliedOverflowScroll = this.getOverflowScrollType(
-      stickyRect,
-      dimensions,
-    );
+    const useNativeStickyDidChange =
+      this.state.useNativeSticky !== useNativeSticky;
     const isStickyDidChange = this.state.isSticky !== isSticky;
     const isDockedToBottomDidChange =
       this.state.isDockedToBottom !== isDockedToBottom;
@@ -351,6 +388,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
       appliedOverflowScroll !== this.state.appliedOverflowScroll;
 
     if (
+      !useNativeStickyDidChange &&
       !stylesDidChange &&
       !isStickyDidChange &&
       !isDockedToBottomDidChange &&
@@ -361,6 +399,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     }
 
     this.setState({
+      useNativeSticky,
       isSticky,
       isDockedToBottom,
       isNearToViewport,
@@ -407,7 +446,15 @@ class Sticky extends React.PureComponent<IProps, IState> {
       <>
         <StickyPlaceholder
           className={className}
-          style={style}
+          style={
+            this.state.useNativeSticky
+              ? {
+                  position: 'sticky',
+                  top: this.props.defaultOffsetTop,
+                  ...style,
+                }
+              : style
+          }
           disabled={disabled}
           forwardRef={this.placeholderRef}
           stickyRef={this.stickyRef}
