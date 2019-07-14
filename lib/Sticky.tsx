@@ -142,6 +142,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
       return false;
     }
 
+    if (rect.height > containerRect.height) {
+      return false
+    }
+
     const height =
       this.props.overflowScroll === 'flow'
         ? Math.min(rect.height, dimensions.height)
