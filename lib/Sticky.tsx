@@ -143,7 +143,7 @@ class Sticky extends React.PureComponent<IProps, IState> {
     }
 
     if (rect.height > containerRect.height) {
-      return false
+      return false;
     }
 
     const height =
@@ -175,7 +175,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const scrollY = Math.round(scroll.y);
     const scrollYTurn = Math.round(scroll.yTurn);
     const heightDiff = this.calcHeightDifference(rectSticky, dimensions);
-    const containerTopOffset = containerTop + scrollY;
+    const containerTopOffset =
+      containerTop + scrollY - this.props.stickyOffset.height;
     const isStickyBottomReached =
       Math.round(rectSticky.bottom) <= dimensions.height;
     const isContainerTopReached = containerTop < this.offsetTop;
@@ -184,17 +185,20 @@ class Sticky extends React.PureComponent<IProps, IState> {
     const isTurnPointBeforeContainer = scrollYTurn < containerTopOffset;
     const isTurnPointAfterContainer =
       scrollYTurn > containerTopOffset + containerRect.height;
-    const isTurnPointWithinContainer =
-      !isTurnPointBeforeContainer && !isTurnPointAfterContainer;
+    const isTurnPointWithinContainer = !(
+      isTurnPointBeforeContainer || isTurnPointAfterContainer
+    );
     // scroll down AND sticky rect bottom not reached AND turn point not within the container OR
     // scroll up AND container top not reached OR
-    //scroll up AND turns within the height diff
+    //scroll up AND turns within the height diff AND turn point not within the container
     if (
       (scroll.isScrollingDown &&
         !isStickyBottomReached &&
         !isTurnPointWithinContainer) ||
       (scroll.isScrollingUp && !isContainerTopReached) ||
-      (scroll.isScrollingUp && isTurnWithinHeightOffset)
+      (scroll.isScrollingUp &&
+        isTurnWithinHeightOffset &&
+        !isTurnPointWithinContainer)
     ) {
       return {
         position: 'absolute',
