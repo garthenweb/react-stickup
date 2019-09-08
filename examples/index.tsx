@@ -1,14 +1,22 @@
 import * as React from 'react';
 import { render } from 'react-dom';
-import { ObserveViewport } from 'react-viewport-utils';
+import { ObserveViewport, useRect } from 'react-viewport-utils';
 
 import { Sticky, StickyScrollUp, StickyProvider } from '../lib/index';
 
 import './styles.css';
 
 const Placeholder = () => <div className="placeholder" />;
+const Test = () => {
+  const div = React.useRef(null);
+  const rect = useRect(div);
+  return <div ref={div} />;
+};
 
-class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
+class Example extends React.PureComponent<
+  {},
+  { disableHeader: boolean; disableAll: boolean }
+> {
   private container1: React.RefObject<any>;
   private container2: React.RefObject<any>;
   private container3: React.RefObject<any>;
@@ -26,6 +34,7 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
     this.container6 = React.createRef();
     this.state = {
       disableHeader: false,
+      disableAll: false,
     };
   }
 
@@ -35,9 +44,20 @@ class Example extends React.PureComponent<{}, { disableHeader: boolean }> {
     });
   }
 
+  toggleAll() {
+    this.setState({
+      disableAll: !this.state.disableAll,
+    });
+  }
+
   render() {
+    if (this.state.disableAll) {
+      return <button onClick={() => this.toggleAll()}>Toggle All</button>;
+    }
     return (
       <>
+        <button onClick={() => this.toggleAll()}>Toggle All</button>
+        <Test />
         <ObserveViewport disableDimensionsUpdates priority="low">
           {({ scroll }) => (
             <div className="scrollPosition">

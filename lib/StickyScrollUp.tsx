@@ -170,6 +170,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
       placeholderRect,
     }: { stickyRect: IRect; placeholderRect: IRect },
   ) => {
+    if (this.props.disabled) {
+      return;
+    }
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
 

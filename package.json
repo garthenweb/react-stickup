@@ -52,7 +52,7 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "react-viewport-utils": "^1.9.1"
+    "react-viewport-utils": "^1.10.1"
   },
   "peerDependencies": {
     "react": "^16.3.0"

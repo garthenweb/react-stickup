@@ -344,8 +344,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
   }
 
   recalculateLayoutBeforeUpdate = (): ILayoutSnapshot => {
-    const stickyRect = this.stickyRef.current.getBoundingClientRect();
     const containerRect = this.container.current.getBoundingClientRect();
+    const stickyRect = this.stickyRef.current.getBoundingClientRect();
     return {
       stickyRect,
       containerRect,
@@ -356,6 +356,9 @@ class Sticky extends React.PureComponent<IProps, IState> {
     { scroll, dimensions }: { scroll: IScroll; dimensions: IDimensions },
     { stickyRect, containerRect }: ILayoutSnapshot,
   ) => {
+    if (this.props.disabled) {
+      return;
+    }
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
     const appliedOverflowScroll = this.getOverflowScrollType(
