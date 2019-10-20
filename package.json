@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "typings": "dist/index.d.ts",
+  "sideEffects": false,
   "scripts": {
     "start": "rm -rf ./.cache && parcel ./examples/index.html --out-dir='examples-dist'",
     "compile:docs": "rm -rf docs && parcel build ./examples/index.html ./examples/legacy-browsers.html --out-dir='docs' --public-url=\"https://garthenweb.github.io/react-stickup/\"",
@@ -50,7 +51,7 @@
     "typescript": "^3.6.2"
   },
   "dependencies": {
-    "react-viewport-utils": "^1.10.1"
+    "react-viewport-utils": "^1.11.0"
   },
   "peerDependencies": {
     "react": "^16.3.0"

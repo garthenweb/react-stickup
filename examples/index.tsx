@@ -67,6 +67,8 @@ class Example extends React.PureComponent<
               <button onClick={() => this.toggleHeaderState()}>
                 Toggle Header Active State
               </button>
+              <br />
+              <button onClick={() => this.toggleAll()}>Toggle All</button>
             </div>
           )}
         </ObserveViewport>

@@ -25,7 +25,7 @@ describe('server side rendering', () => {
 
   it('should render components as if they would have been disabled', () => {
     expect(render()).toBe(
-      '<div><div><div></div></div></div><div><div><div></div></div></div>',
+      '<div style="position:relative"><div style="width:inherit"><div></div></div></div><div style="position:relative"><div style="width:inherit"><div></div></div></div>',
     );
   });
 });

@@ -1,7 +1,12 @@
 import * as React from 'react';
-import { connectViewport, IDimensions } from 'react-viewport-utils';
+import {
+  ObserveViewport,
+  IViewport,
+  IRect,
+  requestAnimationFrame,
+} from 'react-viewport-utils';
 
-interface IOwnProps {
+interface IProps {
   disableResizing: boolean;
   disabled: boolean;
   style: React.CSSProperties | null;
@@ -11,13 +16,9 @@ interface IOwnProps {
   forwardRef?: React.RefObject<any>;
 }
 
-interface IProps extends IOwnProps {
-  dimensions: IDimensions;
-  scroll: null;
-}
-
 interface IState {
   isRecalculating: boolean;
+  isWaitingForRecalculation: boolean;
   stickyHeight: number | null;
   stickyWidth: number | null;
   clientSize: string | null;
@@ -30,73 +31,98 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
 
   state: IState = {
     isRecalculating: false,
+    isWaitingForRecalculation: false,
     stickyHeight: null,
     stickyWidth: null,
     clientSize: null,
   };
 
-  componentDidUpdate() {
-    if (this.state.isRecalculating) {
-      this.setState(
-        StickyPlaceholder.getDerivedStateFromProps(this.props, this.state),
-      );
+  calculateSize = () => {
+    if (
+      this.props.stickyRef.current &&
+      !this.state.isRecalculating &&
+      this.state.isWaitingForRecalculation
+    ) {
+      return this.props.stickyRef.current.getBoundingClientRect();
     }
-  }
+    return null;
+  };
 
-  static getDerivedStateFromProps(props: IProps, state: IState): IState | null {
-    const { width, height, clientWidth, clientHeight } = props.dimensions;
-    const nextClientSize = `width:${width},clientWidth:${clientWidth},height:${height},clientHeight:${clientHeight}`;
-    if (state.isRecalculating) {
-      const stickyRect = props.stickyRef.current.getBoundingClientRect();
-      return {
+  handleDimensionsUpdate = (
+    { dimensions }: IViewport,
+    stickyRect: IRect | null,
+  ) => {
+    const { width, height, clientWidth, clientHeight } = dimensions;
+    const nextClientSize = [width, clientWidth, height, clientHeight].join(',');
+
+    if (
+      !this.state.isWaitingForRecalculation &&
+      this.state.clientSize !== nextClientSize
+    ) {
+      this.setState(
+        {
+          clientSize: nextClientSize,
+          isRecalculating: true,
+          isWaitingForRecalculation: true,
+        },
+        () => {
+          requestAnimationFrame(() => {
+            this.setState({
+              isRecalculating: false,
+            });
+          });
+        },
+      );
+      return;
+    }
+
+    if (stickyRect && this.state.isWaitingForRecalculation) {
+      this.setState({
+        clientSize: nextClientSize,
         stickyHeight: stickyRect.height,
         stickyWidth: stickyRect.width,
-        clientSize: nextClientSize,
-        isRecalculating: false,
-      };
+        isWaitingForRecalculation: false,
+      });
+      return;
     }
-
-    if (!props.stickyRef.current) {
-      return {
-        ...state,
-        isRecalculating: true,
-      };
-    }
-
-    const triggerRecalculation =
-      !props.disableResizing && state.clientSize !== nextClientSize;
-
-    if (triggerRecalculation) {
-      return {
-        ...state,
-        isRecalculating: true,
-      };
-    }
-
-    return null;
-  }
+  };
 
   render() {
     const { children, disabled, style, className, forwardRef } = this.props;
-    const { isRecalculating, stickyHeight, stickyWidth } = this.state;
-    const isActive = !disabled && !isRecalculating;
+    const {
+      isRecalculating,
+      isWaitingForRecalculation,
+      stickyHeight,
+      stickyWidth,
+    } = this.state;
+    const isActive = !disabled && !isWaitingForRecalculation;
+    const baseStyle = { position: 'relative', ...style };
     const containerStyle: React.CSSProperties = isActive
       ? {
-          position: 'relative',
           height: stickyHeight,
           width: stickyWidth,
-          ...style,
+          ...baseStyle,
         }
-      : null;
+      : baseStyle;
     return (
-      <div ref={forwardRef} style={containerStyle} className={className}>
-        {children({ isRecalculating })}
-      </div>
+      <>
+        <div ref={forwardRef} style={containerStyle} className={className}>
+          {children({
+            isRecalculating: isWaitingForRecalculation,
+          })}
+        </div>
+        {!this.props.disableResizing && (
+          <ObserveViewport
+            disableScrollUpdates
+            disableDimensionsUpdates={isRecalculating}
+            onUpdate={this.handleDimensionsUpdate}
+            recalculateLayoutBeforeUpdate={this.calculateSize}
+            priority="highest"
+          />
+        )}
+      </>
     );
   }
 }
 
-export default connectViewport({
-  omit: ['scroll'],
-  deferUpdateUntilIdle: true,
-})<IOwnProps>(StickyPlaceholder);
+export default StickyPlaceholder;
