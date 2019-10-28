@@ -52,8 +52,8 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     { dimensions }: { dimensions: IDimensions },
     stickyRect: IRect | null,
   ) => {
-    const { width, height, clientWidth, clientHeight } = dimensions;
-    const nextClientSize = [width, clientWidth, height, clientHeight].join(',');
+    const { width, clientWidth } = dimensions;
+    const nextClientSize = [width, clientWidth].join(',');
 
     if (
       !this.state.isWaitingForRecalculation &&
@@ -98,11 +98,11 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     const isActive = !disabled && !isWaitingForRecalculation;
     const baseStyle = { position: 'relative', ...style } as const;
     const containerStyle: React.CSSProperties = isActive
-      ? {
+      ? ({
           height: stickyHeight,
           width: stickyWidth,
           ...baseStyle,
-        } as const
+        } as const)
       : baseStyle;
     return (
       <>
