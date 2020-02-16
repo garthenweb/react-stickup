@@ -4,6 +4,7 @@ import {
   IDimensions,
   IRect,
   requestAnimationFrame,
+  cancelAnimationFrame,
 } from 'react-viewport-utils';
 
 interface IProps {
@@ -25,6 +26,7 @@ interface IState {
 }
 
 class StickyPlaceholder extends React.Component<IProps, IState> {
+  private recalculationTick?: number;
   static defaultProps = {
     style: {},
   };
@@ -36,6 +38,10 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     stickyWidth: null,
     clientSize: null,
   };
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.recalculationTick);
+  }
 
   calculateSize = () => {
     if (
@@ -66,10 +72,11 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
           isWaitingForRecalculation: true,
         },
         () => {
-          requestAnimationFrame(() => {
+          this.recalculationTick = requestAnimationFrame(() => {
             this.setState({
               isRecalculating: false,
             });
+            this.recalculationTick = undefined;
           });
         },
       );
