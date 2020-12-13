@@ -9,7 +9,6 @@ import './styles.css';
 const Placeholder = () => <div className="placeholder" />;
 const Test = () => {
   const div = React.useRef(null);
-  const rect = useRect(div);
   return <div ref={div} />;
 };
 
@@ -23,6 +22,7 @@ class Example extends React.PureComponent<
   private container4: React.RefObject<any>;
   private container5: React.RefObject<any>;
   private container6: React.RefObject<any>;
+  private container7: React.RefObject<any>;
 
   constructor(props) {
     super(props);
@@ -32,6 +32,7 @@ class Example extends React.PureComponent<
     this.container4 = React.createRef();
     this.container5 = React.createRef();
     this.container6 = React.createRef();
+    this.container7 = React.createRef();
     this.state = {
       disableHeader: false,
       disableAll: false,
@@ -178,6 +179,14 @@ class Example extends React.PureComponent<
           </div>
         </div>
 
+        <div ref={this.container7} style={{ height: 1500 }}>
+          <Sticky container={this.container7} overflowScroll="flow" experimentalNative>
+            <div>
+              <DynamicContent />
+            </div>
+          </Sticky>
+        </div>
+
         <Sticky disableHardwareAcceleration>
           <div className="sticky-inline">disableHardwareAcceleration: true</div>
         </Sticky>
@@ -189,6 +198,21 @@ class Example extends React.PureComponent<
     );
   }
 }
+
+const DynamicContent = () => {
+  const [count, setCount] = React.useState(1);
+
+  return (
+    <div className="sticky-inline">
+      <button onClick={() => setCount(count + 1)}>add</button>
+      {Array(count)
+        .fill(null)
+        .map((_, index) => (
+          <div>{index}</div>
+        ))}
+    </div>
+  );
+};
 
 render(
   <React.StrictMode>

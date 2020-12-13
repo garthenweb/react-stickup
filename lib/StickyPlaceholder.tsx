@@ -6,6 +6,7 @@ import {
   requestAnimationFrame,
   cancelAnimationFrame,
 } from 'react-viewport-utils';
+import ElementResizeObserver from './ElementResizeObserver';
 
 interface IProps {
   disableResizing: boolean;
@@ -22,11 +23,12 @@ interface IState {
   isWaitingForRecalculation: boolean;
   stickyHeight: number | null;
   stickyWidth: number | null;
-  clientSize: string | null;
+  clientHash: string | null;
 }
 
 class StickyPlaceholder extends React.Component<IProps, IState> {
   private recalculationTick?: number;
+  private lastDimensions?: IDimensions;
   static defaultProps = {
     style: {},
   };
@@ -36,7 +38,7 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     isWaitingForRecalculation: false,
     stickyHeight: null,
     stickyWidth: null,
-    clientSize: null,
+    clientHash: null,
   };
 
   componentWillUnmount() {
@@ -58,16 +60,17 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     { dimensions }: { dimensions: IDimensions },
     stickyRect: IRect | null,
   ) => {
+    this.lastDimensions = dimensions;
     const { width, clientWidth } = dimensions;
-    const nextClientSize = [width, clientWidth].join(',');
+    const nextClientHash = [width, clientWidth].join(',');
 
     if (
       !this.state.isWaitingForRecalculation &&
-      this.state.clientSize !== nextClientSize
+      this.state.clientHash !== nextClientHash
     ) {
       this.setState(
         {
-          clientSize: nextClientSize,
+          clientHash: nextClientHash,
           isRecalculating: true,
           isWaitingForRecalculation: true,
         },
@@ -83,14 +86,29 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
       return;
     }
 
-    if (stickyRect && this.state.isWaitingForRecalculation) {
-      this.setState({
-        clientSize: nextClientSize,
-        stickyHeight: stickyRect.height,
-        stickyWidth: stickyRect.width,
-        isWaitingForRecalculation: false,
-      });
-      return;
+    if (stickyRect) {
+      if (
+        this.state.isWaitingForRecalculation ||
+        stickyRect.height !== this.state.stickyHeight ||
+        stickyRect.width !== this.state.stickyWidth
+      ) {
+        this.setState({
+          clientHash: nextClientHash,
+          stickyHeight: stickyRect.height,
+          stickyWidth: stickyRect.width,
+          isWaitingForRecalculation: false,
+        });
+        return;
+      }
+    }
+  };
+
+  handleElementResize = (stickyRect: IRect) => {
+    if (this.lastDimensions) {
+      this.handleDimensionsUpdate(
+        { dimensions: this.lastDimensions },
+        stickyRect,
+      );
     }
   };
 
@@ -119,13 +137,19 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
           })}
         </div>
         {!this.props.disableResizing && (
-          <ObserveViewport
-            disableScrollUpdates
-            disableDimensionsUpdates={isRecalculating}
-            onUpdate={this.handleDimensionsUpdate}
-            recalculateLayoutBeforeUpdate={this.calculateSize}
-            priority="highest"
-          />
+          <>
+            <ObserveViewport
+              disableScrollUpdates
+              disableDimensionsUpdates={isRecalculating}
+              onUpdate={this.handleDimensionsUpdate}
+              recalculateLayoutBeforeUpdate={this.calculateSize}
+              priority="highest"
+            />
+            <ElementResizeObserver
+              stickyRef={this.props.stickyRef}
+              onUpdate={this.handleElementResize}
+            />
+          </>
         )}
       </>
     );
