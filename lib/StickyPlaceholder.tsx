@@ -28,6 +28,7 @@ interface IState {
 
 class StickyPlaceholder extends React.Component<IProps, IState> {
   private recalculationTick?: number;
+  private isUnmounted?: boolean;
   private lastDimensions?: IDimensions;
   static defaultProps = {
     style: {},
@@ -43,6 +44,7 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
 
   componentWillUnmount() {
     cancelAnimationFrame(this.recalculationTick);
+    this.isUnmounted = true;
   }
 
   calculateSize = () => {
@@ -60,6 +62,9 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
     { dimensions }: { dimensions: IDimensions },
     stickyRect: IRect | null,
   ) => {
+    if (this.isUnmounted) {
+      return;
+    }
     this.lastDimensions = dimensions;
     const { width, clientWidth } = dimensions;
     const nextClientHash = [width, clientWidth].join(',');
@@ -75,6 +80,9 @@ class StickyPlaceholder extends React.Component<IProps, IState> {
           isWaitingForRecalculation: true,
         },
         () => {
+          if (this.isUnmounted) {
+            return;
+          }
           this.recalculationTick = requestAnimationFrame(() => {
             this.setState({
               isRecalculating: false,
