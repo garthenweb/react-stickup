@@ -54,7 +54,7 @@ interface IOwnProps extends IStickyComponentProps {
   experimentalNative?: boolean;
 }
 
-interface IProps extends IOwnProps, IStickyInjectedProps {}
+interface IProps extends IOwnProps, IStickyInjectedProps { }
 
 interface IState {
   isSticky: boolean;
@@ -66,7 +66,7 @@ interface IState {
 }
 
 interface ILayoutSnapshot {
-  stickyRect: IRect;
+  stickyRect?: IRect;
   containerRect: IRect;
 }
 
@@ -106,35 +106,37 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return Boolean(this.props.container);
   };
 
-  isNearToViewport = (rect: IRect): boolean => {
+  isNearToViewport = (rect?: IRect): boolean => {
     const padding = 700;
-    return rect.top - padding < 0 && rect.bottom + padding > 0;
+    return (rect?.top || 0) - padding < 0 && (rect?.bottom || 0) + padding > 0;
   };
 
   getOverflowScrollType = (
-    rectSticky: IRect,
-    dimensions: IDimensions,
+    { rectSticky, dimensions }: {
+      rectSticky?: IRect,
+      dimensions: IDimensions,
+    }
   ): OverflowScrollType => {
     return this.props.overflowScroll === 'flow' &&
-      this.calcHeightDifference(rectSticky, dimensions) > 0
+      this.calcHeightDifference({ rectSticky, dimensions }) > 0
       ? 'flow'
       : 'end';
   };
 
-  isSticky = (rect: IRect, containerRect: IRect, dimensions: IDimensions) => {
+  isSticky = ({ rect, containerRect, dimensions }: { rect?: IRect, containerRect?: IRect, dimensions: IDimensions }) => {
     if (!this.hasContainer()) {
-      return Math.round(containerRect.top) <= this.offsetTop;
+      return Math.round(containerRect?.top || 0) <= this.offsetTop;
     }
 
-    if (Math.round(containerRect.top) > this.offsetTop) {
+    if (Math.round(containerRect?.top || 0) > this.offsetTop) {
       return false;
     }
 
     const height =
       this.props.overflowScroll === 'flow'
-        ? Math.min(rect.height, dimensions.height)
-        : rect.height;
-    if (Math.round(containerRect.bottom) - this.offsetTop < height) {
+        ? Math.min(rect?.height || 0, dimensions.height)
+        : rect?.height || 0;
+    if (Math.round(containerRect?.bottom || 0) - this.offsetTop < height) {
       return false;
     }
 
@@ -154,8 +156,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
     if (
       process.env.NODE_ENV !== 'production' &&
       !this.nativeStickyThrewOnce &&
-      (this.placeholderRef && this.placeholderRef.current.parentElement) !==
-        (this.props.container && this.props.container.current)
+      (this.placeholderRef && this.placeholderRef.current?.parentElement) !==
+      (this.props.container && this.props.container.current)
     ) {
       console.warn(
         'react-stickup: a sticky element was used with property `experimentalNative` but its `container` is not the parent the sticky component. As the native sticky implementation always uses its parent element as the container. This can lead to unexpected results. It is therefore recommended to change the DOM structure so that the container is a direct parent of the Sticky component or to remove the `experimentalNative` property.',
@@ -166,9 +168,11 @@ class Sticky extends React.PureComponent<IProps, IState> {
   };
 
   isDockedToBottom = (
-    rect: IRect,
-    containerRect: IRect,
-    dimensions: IDimensions,
+    { rect, containerRect, dimensions }: {
+      rect?: IRect,
+      containerRect: IRect,
+      dimensions: IDimensions,
+    }
   ) => {
     if (!rect || !containerRect) {
       return false;
@@ -193,28 +197,30 @@ class Sticky extends React.PureComponent<IProps, IState> {
     return true;
   };
 
-  calcHeightDifference(rectSticky: IRect, dimensions: IDimensions) {
+  calcHeightDifference({ rectSticky, dimensions }: { rectSticky?: IRect, dimensions: IDimensions }) {
     if (!dimensions) {
       return 0;
     }
-    return Math.max(0, Math.round(rectSticky.height) - dimensions.height);
+    return Math.max(0, Math.round(rectSticky?.height || 0) - dimensions.height);
   }
 
   calcOverflowScrollFlowStickyStyles(
-    rectSticky: IRect,
-    containerRect: IRect,
-    scroll: IScroll,
-    dimensions: IDimensions,
+    { rectSticky, containerRect, scroll, dimensions }: {
+      rectSticky?: IRect,
+      containerRect: IRect,
+      scroll: IScroll,
+      dimensions: IDimensions,
+    }
   ): IPositionStyles {
     const containerTop = Math.round(containerRect.top);
-    const stickyTop = Math.round(rectSticky.top);
+    const stickyTop = Math.round(rectSticky?.top || 0);
     const scrollY = Math.round(scroll.y);
     const scrollYTurn = Math.round(scroll.yTurn);
-    const heightDiff = this.calcHeightDifference(rectSticky, dimensions);
+    const heightDiff = this.calcHeightDifference({ rectSticky, dimensions });
     const containerTopOffset =
       containerTop + scrollY - this.props.stickyOffset.height;
     const isStickyBottomReached =
-      Math.round(rectSticky.bottom) <= dimensions.height;
+      Math.round(rectSticky?.bottom || 0) <= dimensions.height;
     const isContainerTopReached = containerTop < this.offsetTop;
     const isTurnWithinHeightOffset =
       scrollYTurn - heightDiff <= containerTopOffset;
@@ -272,18 +278,22 @@ class Sticky extends React.PureComponent<IProps, IState> {
   }
 
   calcPositionStyles(
-    rectSticky: IRect,
-    containerRect: IRect,
-    scroll: IScroll,
-    dimensions: IDimensions,
+    { rectSticky, containerRect, scroll, dimensions }: {
+      rectSticky?: IRect,
+      containerRect: IRect,
+      scroll: IScroll,
+      dimensions: IDimensions,
+    }
   ): IPositionStyles {
-    if (this.isSticky(rectSticky, containerRect, dimensions)) {
-      if (this.getOverflowScrollType(rectSticky, dimensions) === 'flow') {
+    if (this.isSticky({ rect: rectSticky, containerRect, dimensions })) {
+      if (this.getOverflowScrollType({ rectSticky, dimensions }) === 'flow') {
         return this.calcOverflowScrollFlowStickyStyles(
-          rectSticky,
-          containerRect,
-          scroll,
-          dimensions,
+          {
+            rectSticky,
+            containerRect,
+            scroll,
+            dimensions,
+          }
         );
       }
       const stickyOffset = this.props.stickyOffset.top;
@@ -305,10 +315,10 @@ class Sticky extends React.PureComponent<IProps, IState> {
       };
     }
 
-    if (this.isDockedToBottom(rectSticky, containerRect, dimensions)) {
+    if (this.isDockedToBottom({ rect: rectSticky, containerRect, dimensions })) {
       return {
         position: 'absolute',
-        top: containerRect.height - rectSticky.height,
+        top: containerRect.height - (rectSticky?.height || 0),
       };
     }
 
@@ -319,24 +329,28 @@ class Sticky extends React.PureComponent<IProps, IState> {
   }
 
   getStickyStyles(
-    rect: IRect,
-    containerRect: IRect,
-    scroll: IScroll,
-    dimensions: IDimensions,
+    { rect, containerRect, scroll, dimensions }: {
+      rect?: IRect,
+      containerRect: IRect,
+      scroll: IScroll,
+      dimensions: IDimensions,
+    }
   ): IPositionStyles {
     const styles = this.calcPositionStyles(
-      rect,
-      containerRect,
-      scroll,
-      dimensions,
+      {
+        rectSticky: rect,
+        containerRect,
+        scroll,
+        dimensions,
+      }
     );
 
     if (!this.props.disableHardwareAcceleration) {
       const shouldAccelerate = this.isNearToViewport(rect);
       if (supportsWillChange) {
-        styles.willChange = shouldAccelerate ? 'position, top' : null;
+        styles.willChange = shouldAccelerate ? 'position, top' : undefined;
       } else {
-        styles.transform = shouldAccelerate ? `translateZ(0)` : null;
+        styles.transform = shouldAccelerate ? `translateZ(0)` : undefined;
       }
     }
 
@@ -344,8 +358,8 @@ class Sticky extends React.PureComponent<IProps, IState> {
   }
 
   recalculateLayoutBeforeUpdate = (): ILayoutSnapshot => {
-    const containerRect = this.container.current.getBoundingClientRect();
-    const stickyRect = this.stickyRef.current.getBoundingClientRect();
+    const containerRect = this.container.current?.getBoundingClientRect();
+    const stickyRect = this.stickyRef.current?.getBoundingClientRect();
     return {
       stickyRect,
       containerRect,
@@ -361,23 +375,23 @@ class Sticky extends React.PureComponent<IProps, IState> {
     }
     // in case children is not a function renderArgs will never be used
     const willRenderAsAFunction = typeof this.props.children === 'function';
-    const appliedOverflowScroll = this.getOverflowScrollType(
-      stickyRect,
+    const appliedOverflowScroll = this.getOverflowScrollType({
+      rectSticky: stickyRect,
       dimensions,
-    );
+    });
 
     const useNativeSticky = this.shouldUseNativeSticky(appliedOverflowScroll);
 
     const styles = useNativeSticky
       ? {}
-      : this.getStickyStyles(stickyRect, containerRect, scroll, dimensions);
+      : this.getStickyStyles({ rect: stickyRect, containerRect, scroll, dimensions });
     const stateStyles = this.state.styles;
     const stylesDidChange = !shallowEqualPositionStyles(styles, stateStyles);
     const isSticky = willRenderAsAFunction
-      ? this.isSticky(stickyRect, containerRect, dimensions)
+      ? this.isSticky({ rect: stickyRect, containerRect, dimensions })
       : false;
     const isDockedToBottom = willRenderAsAFunction
-      ? this.isDockedToBottom(stickyRect, containerRect, dimensions)
+      ? this.isDockedToBottom({ rect: stickyRect, containerRect, dimensions })
       : false;
     const isNearToViewport = this.isNearToViewport(stickyRect);
     const useNativeStickyDidChange =
@@ -452,16 +466,16 @@ class Sticky extends React.PureComponent<IProps, IState> {
           style={
             this.state.useNativeSticky
               ? {
-                  position: 'sticky',
-                  top: this.props.defaultOffsetTop,
-                  ...style,
-                }
+                position: 'sticky',
+                top: this.props.defaultOffsetTop,
+                ...style,
+              }
               : style
           }
-          disabled={disabled}
+          disabled={Boolean(disabled)}
           forwardRef={this.placeholderRef}
           stickyRef={this.stickyRef}
-          disableResizing={disableResizing}
+          disableResizing={Boolean(disableResizing)}
         >
           {this.renderSticky}
         </StickyPlaceholder>

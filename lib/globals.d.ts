@@ -15,7 +15,7 @@ interface ResizeObserver {
   /**
    * Adds target to the list of observed elements.
    */
-  observe: (target: Element) => void;
+  observe: (target: Element, options?: ResizeObserverOptions) => void;
 
   /**
    * Removes target from the list of observed elements.
