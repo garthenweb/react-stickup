@@ -27,7 +27,7 @@ interface IOwnProps extends IStickyComponentProps {
   defaultOffsetTop?: number;
 }
 
-interface IProps extends IOwnProps, IStickyInjectedProps {}
+interface IProps extends IOwnProps, IStickyInjectedProps { }
 
 interface IState {
   styles: IPositionStyles;
@@ -144,9 +144,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
     if (!this.props.disableHardwareAcceleration) {
       const shouldAccelerate = this.isNearToViewport(stickyRect);
       if (supportsWillChange) {
-        styles.willChange = shouldAccelerate ? 'position, top' : null;
+        styles.willChange = shouldAccelerate ? 'position, top' : undefined;
       } else {
-        styles.transform = shouldAccelerate ? `translateZ(0)` : null;
+        styles.transform = shouldAccelerate ? `translateZ(0)` : undefined;
       }
     }
 
@@ -239,9 +239,9 @@ class StickyScrollUp extends React.PureComponent<IProps, IState> {
         <StickyPlaceholder
           className={className}
           style={style}
-          disabled={disabled}
+          disabled={Boolean(disabled)}
           stickyRef={this.stickyRef}
-          disableResizing={disableResizing}
+          disableResizing={Boolean(disableResizing)}
           forwardRef={this.placeholderRef}
         >
           {this.renderSticky}

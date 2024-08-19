@@ -14,7 +14,8 @@
     "test": "jest --coverage",
     "fmt": "prettier --write \"lib/*.{ts,tsx}\"  \"examples/*.{ts,tsx}\"",
     "prepublishOnly": "npm test && npm run compile",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "ts-check:watch": "tsc --noEmit --watch"
   },
   "repository": {
     "type": "git",
@@ -55,6 +56,6 @@
     "react-viewport-utils": "^1.12.1"
   },
   "peerDependencies": {
-    "react": ">=16.3.0 <18.0.0"
+    "react": ">=16.3.0 <=18.3.1"
   }
 }
